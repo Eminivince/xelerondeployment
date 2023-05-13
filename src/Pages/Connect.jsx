@@ -15,7 +15,7 @@ function Connect() {
     }
     console.log(password)
   return (
-    <main className='border-2 w-[100%] min-h-[100vh] p-3 flex flex-col items-center text-white pt-[40px]'>
+    <main className='w-[100%] min-h-[100vh] p-3 flex flex-col items-center text-white pt-[40px]'>
         <h3 className='mb-[50px] flex items-center'><img src={Xeleronlogo} alt='logo' className='mr-3'/>Xeleron</h3>
 
         <h2 className='text-[24px] mb-2'>Welcome to Xeleron</h2>

@@ -3,7 +3,7 @@ import { AiOutlineClose } from 'react-icons/ai'
 import { useDispatch } from 'react-redux'
 import { hideSwapETHforToken } from '../Features/ModalSlice'
 
-function SwapETHforToken() {
+function SwapETHforToken({swapInputs}) {
     // const [display, setFilterManage] = useState({
     //     list: '',
     //     token: ''
@@ -38,7 +38,7 @@ function SwapETHforToken() {
             </header>
 
             <div>
-                <h1 className='text-center text-[34px] mb-2'>0.022ETH</h1>
+                <h1 className='text-center text-[34px] mb-2'>{swapInputs}</h1>
                 <p className='text-center text-[#DCDCDC]'>$39.67</p>
             </div>
 
