@@ -1,24 +1,28 @@
-import {createSlice} from '@reduxjs/toolkit';
-
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    status: false,
-}
+  status: false,
+  account: '',
+};
 
 const ConnectAccountSlice = createSlice({
-    name: 'connectionStatus',
-    initialState,
-    reducers: {
-        connectUserAccount: (state) => {
-            state.status = true
-        },
-        disconnectUserAccount: (state) => {
-            state.status = false
-        }
-    }
-})
+  name: 'connectionStatus',
+  initialState,
+  reducers: {
+    connectUserAccount: (state, action) => {
+      state.status = true;
+      state.account = action.payload;
+    },
 
-export const connectUserAccount = ConnectAccountSlice.actions.connectUserAccount
-export const disconnectUserAccount = ConnectAccountSlice.actions.disconnectUserAccount
+    disconnectUserAccount: (state) => {
+      state = initialState;
+    },
+  },
+});
 
-export default ConnectAccountSlice.reducer
+export const connectUserAccount =
+  ConnectAccountSlice.actions.connectUserAccount;
+export const disconnectUserAccount =
+  ConnectAccountSlice.actions.disconnectUserAccount;
+
+export default ConnectAccountSlice.reducer;
