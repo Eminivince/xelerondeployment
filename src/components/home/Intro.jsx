@@ -9,7 +9,7 @@ function Intro() {
         <section className='w-full md:w-6/12'>
             <h1 className='text-white text-[40px] md:text-[50px] lg:text-[73.39px] leading-[50px] md:leading-[70px] lg:leading-[83px] font-[400px] text-center md:text-left'>The <span className='text-[#69CED1]'>Gateway</span> to the ultimate DeFi experience.</h1>
             <p className='opacity-[0.7] text-white mt-8 text-[20px] lg:text-[24px] text-center md:text-left'>Your all-in-one platform for Trading, Earning, and Lending<span className='hidden sm:inline'>! Embrace unparalleled efficiency and user-friendliness that fully leverages the cutting-edge zkSync technology.</span></p>
-            <Link className='mt-[50px]'><button className='bg-[#69CED1] rounded-[14px] text-[#011718] w-full md:w-[300px] h-[60px] mt-[30px]'>Get Started</button></Link>
+            <Link to="/swap" className='mt-[50px]'><button className='bg-[#69CED1] rounded-[14px] text-[#011718] w-full md:w-[300px] h-[60px] mt-[30px]'>Get Started</button></Link>
         </section>
 
 

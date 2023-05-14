@@ -25,9 +25,9 @@ function WalletModal() {
                 <div className='ml-auto cursor-pointer' onClick={() => dispatch(hideWalletModal())}><AiOutlineClose /></div>
             </header>
 
-            <div>
+            <div id='hide-scroll' className='h-[455px] mb-2 overflow-y-scroll'>
               {wallets.map(wallet => {
-                return <Link to='/connect' key={wallet.id} className='block h-[72px] w-full px-3 bg-[#1B595B] border-[1px] border-[#69CED1] rounded-[8px] mb-5'><button className='flex justify-between items-center w-full h-full'><span>{wallet.name}</span><img src={wallet.imgSrc} alt="wallet-icon" /></button></Link>
+                return <Link key={wallet.id} className='block h-[72px] w-full px-3 bg-[#1B595B] border-[1px] border-[#69CED1] rounded-[8px] mb-4'><button className='flex justify-between items-center w-full h-full'><span>{wallet.name}</span><img src={wallet.imgSrc} alt="wallet-icon" /></button></Link>
               })}  
             </div>
             <p>New to Ethereum? <a href="" className='text-[#69CED1] underline decoration-[#69CED1]'>Learn more about wallets</a></p>

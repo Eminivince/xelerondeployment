@@ -181,30 +181,34 @@ function Swap() {
                     <button className='text-[#1B595B] h-[48px] w-full max-w-[384px] sm:w-[384px] bg-[#1C3738] block m-auto mt-7 rounded-[100px]'>Enter an Amount</button>
                 }
             </section>
-            <div className='text-[#DCDCDC] w-full max-w-[464px] sm:w-[464px] px-3 sm:px-[24px] m-auto mt-5'>
-                <p className='flex items-center justify-between mb-3'>
-                    <span className='flex items-center relative'>
-                        Minimum received <i className='cursor-pointer ml-2' onClick={toggleMinimum}><AiOutlineQuestionCircle /></i>
-                        { confirmSwapInfoBoxes.displayMinimumReceivedInfo && <span className='absolute w-[205px] h-[80px]  sm:w-[261px] sm:h-[104px] rounded-lg p-4 bg-[#1C3738] -top-[350%] sm:-top-[450%] text-[12px] left-[20%] sm:left-1/2'>Your transation will revert if there is a large, unfavorable price movement before it is confirmed</span>}
-                    </span>
-                    <span>{swapInputs.to} 1INCH</span>
-                </p>
-                <p className='flex items-center justify-between mb-3'>
-                    <span className='flex items-center relative'>
-                        Price Impact <i className='cursor-pointer ml-2' onClick={togglePriceImpact}><AiOutlineQuestionCircle /></i>
-                        { confirmSwapInfoBoxes.displayPriceImpactInfo && <span className='absolute w-[205px] h-[80px]  sm:w-[261px] sm:h-[104px] rounded-lg p-4 bg-[#1C3738] -top-[350%] sm:-top-[450%] text-[12px] left-[20%] sm:left-1/2'>The difference between the market price and estimated price due to trade size</span>}
-                    </span>
-                    <span>0.01%</span>
-                </p>
-                <p className='flex items-center justify-between mb-3'>
-                    <span className='flex items-center relative'>
-                        Liquidity Provider Free <i className='cursor-pointer ml-2' onClick={toggleLiquidity}><AiOutlineQuestionCircle /></i>
-                        { confirmSwapInfoBoxes.displayLiquidityInfo && <span className='absolute w-[205px] h-[80px]  sm:w-[261px] sm:h-[104px] rounded-lg p-4 bg-[#1C3738] -top-[350%] sm:-top-[450%] text-[12px] left-[20%] sm:left-1/2'>A portion of each trade (0.30%) goes to liquidity providers as a protocol incentive</span>}
-                    </span>
-                    <span>0.0000066ETH</span>
-                </p>
-                <a href="" className='text-[#69CED1] block my-5 m-auto w-fit'>view pair analysis</a>
-            </div>
+            { swapInputs.to.length > 0 && swapInputs.from.length > 0 ? 
+                <div className='text-[#DCDCDC] w-full max-w-[464px] sm:w-[464px] px-3 sm:px-[24px] m-auto mt-5'>
+                    <p className='flex items-center justify-between mb-3'>
+                        <span className='flex items-center relative'>
+                            Minimum received <i className='cursor-pointer ml-2' onClick={toggleMinimum}><AiOutlineQuestionCircle /></i>
+                            { confirmSwapInfoBoxes.displayMinimumReceivedInfo && <span className='absolute w-[205px] h-[80px]  sm:w-[261px] sm:h-[104px] rounded-lg p-4 bg-[#1C3738] -top-[350%] sm:-top-[450%] text-[12px] left-[20%] sm:left-1/2'>Your transation will revert if there is a large, unfavorable price movement before it is confirmed</span>}
+                        </span>
+                        <span>{swapInputs.to} 1INCH</span>
+                    </p>
+                    <p className='flex items-center justify-between mb-3'>
+                        <span className='flex items-center relative'>
+                            Price Impact <i className='cursor-pointer ml-2' onClick={togglePriceImpact}><AiOutlineQuestionCircle /></i>
+                            { confirmSwapInfoBoxes.displayPriceImpactInfo && <span className='absolute w-[205px] h-[80px]  sm:w-[261px] sm:h-[104px] rounded-lg p-4 bg-[#1C3738] -top-[350%] sm:-top-[450%] text-[12px] left-[20%] sm:left-1/2'>The difference between the market price and estimated price due to trade size</span>}
+                        </span>
+                        <span>0.01%</span>
+                    </p>
+                    <p className='flex items-center justify-between mb-3'>
+                        <span className='flex items-center relative'>
+                            Liquidity Provider Free <i className='cursor-pointer ml-2' onClick={toggleLiquidity}><AiOutlineQuestionCircle /></i>
+                            { confirmSwapInfoBoxes.displayLiquidityInfo && <span className='absolute w-[205px] h-[80px]  sm:w-[261px] sm:h-[104px] rounded-lg p-4 bg-[#1C3738] -top-[350%] sm:-top-[450%] text-[12px] left-[20%] sm:left-1/2'>A portion of each trade (0.30%) goes to liquidity providers as a protocol incentive</span>}
+                        </span>
+                        <span>0.0000066ETH</span>
+                    </p>
+                    <a href="" className='text-[#69CED1] block my-5 m-auto w-fit'>view pair analysis</a>
+                </div>
+
+                : ''
+            }
         </div>
         
         :
