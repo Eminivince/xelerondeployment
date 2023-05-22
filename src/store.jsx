@@ -5,6 +5,8 @@ import tokenReducer from './components/Features/TokenSlice';
 import connectionReducer from './components/Features/ConnectAccountSlice';
 import swapFuncReducer from './components/Features/SwapFuncSlice';
 import web3Reducer from './components/Features/web3Slice';
+import PoolReducer from './components/Features/PoolSlice';
+import ELLAssetReducer from './components/Features/ELLAssetSlice';
 
 export const store = configureStore({
   reducer: {
@@ -14,6 +16,8 @@ export const store = configureStore({
     connectionStatus: connectionReducer,
     swapFunc: swapFuncReducer,
     web3: web3Reducer,
+    poolFunc: PoolReducer,
+    ellAssetFunc: ELLAssetReducer
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({

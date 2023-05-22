@@ -5,6 +5,7 @@ import Swap from './Pages/Swap';
 import Connect from './Pages/Connect';
 import SelectAccount from './Pages/SelectAccount';
 import Pool from './Pages/Pool';
+import ConnectToELLAsset from './Pages/ConnectToELLAsset';
 function App() {
   return (
     <BrowserRouter>
@@ -14,6 +15,7 @@ function App() {
         <Route path="/connect" element={<Connect />} />
         <Route path="/account" element={<SelectAccount />} />
         <Route path="/pool" element={<Pool />} />
+        <Route path="/ELLAsset" element={<ConnectToELLAsset />} />
       </Routes>
     </BrowserRouter>
   );
