@@ -13,7 +13,7 @@ function Navbar() {
   return (
     <nav className='flex items-center justify-between h-[80px] px-6 lg:px-10 fixed top-0 w-full z-[999] bg-[#1E1E1E]'>
         <Link className='text-[30px] text-[#69CED1] flex items-center'><img src={Xeleron} alt="" className='mr-3 w-[37.01px] h-[36.78px]'/> Xeleron</Link>
-        <ul className={`w-full lg:w-[35%] flex justify-between text-white lg:text-[14px] fixed lg:static lg:flex-row flex-col top-[80px] ${toggleMobileNav ? 'left-[-2000%]' : 'left-0'} items-center bg-[#1E1E1E] z-[999] text-[24px] px-5 lg:px-0 lg:pb-0 pb-4 transition duration-700 delay-700 ease-in-out`}>
+        <ul className={`w-full lg:w-[35%] flex justify-between text-white lg:text-[14px] fixed lg:static lg:flex-row flex-col top-[80px] ${toggleMobileNav ? 'left-[-50%] scale-[0]' : 'left-0 scale-[1]'} items-center bg-[#1E1E1E] lg:scale-[1] z-[999] text-[24px] px-5 lg:px-0 lg:pb-0 pb-4 transition-all duration-700 delay-700 ease-in-out`}>
             <li className='lg:mb-0 mb-6 hover:opacity-70'><Link>Network</Link></li>
             <li className='lg:mb-0 mb-6 hover:opacity-70'><Link>Developer</Link></li>
             <li className='lg:mb-0 mb-6 hover:opacity-70'><Link>Community</Link></li>

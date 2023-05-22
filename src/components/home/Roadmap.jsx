@@ -1,10 +1,11 @@
-import React from 'react'
+import React from 'react';
+import Line3 from '../../images/line3.png';
 
 function Roadmap() {
   return (
-    <section className='text-white py-16'>
-        <h5>Xeleron Dex Roadmap</h5>
-        <h2>Explore our planned future</h2>
+    <section className='text-white py-16 px-4'>
+        <h5 className='md:text-center text-[20px]'>Xeleron Dex Roadmap</h5>
+        <h2 className='md:text-center text-[36px] md:text-[64px]'><span className='relative'>Explore<img src={Line3} alt='line' className='absolute hidden sm:block left-0 -bottom-5 min-w-[110%]' /></span> our planned future <span className='md:hidden'>with us</span></h2>
 
         <div className='mt-10'>
             <div className='flex flex-col lg:flex-row items-cente lg:items-start'>
@@ -36,8 +37,6 @@ function Roadmap() {
             </div>
                
 
-               {/* 888888888888888888888888888888888888888 */}
-
             <div className='flex flex-col-reverse items-center lg:flex-row mt-[70px] lg:ml-[-4px] lg:mt-[-80px]'>
                 <div className='h-[478.71px] sm:h-[629px] lg:w-[48%] flex flex-col lg:flex-row lg:justify-end w-full'><div className='relative max-w-[388.54px] w-full h-[478.71px] sm:w-[388.54px] sm:h-[629px] lg:mr-20 mt-9 self-center lg:self-start'>
                     <div className='w-[90%] sm:w-full h-full bg-[#69CED1] absolute z-[0] left-6 lg:left-0 bottom-6 rounded-[20px]'></div>
@@ -53,17 +52,16 @@ function Roadmap() {
                 </div></div>
 
                 <div className=' lg:w-[52%] max-w-[388.54px] w-full lg:h-[629px] md:w-[388.54px]'><div className='max-w-[388.54px] w-full lg:w-[388.54px] lg:h-[629px] lg:flex flex-col justify-center lg:border-l-2'>
-                        <h5 className='md:text-[27px] text-[#69CED1] lg:text-right'>Q2 2023</h5>
+                        <h5 className='md:text-[27px] text-[#69CED1] lg:text-right'>Q3 2023</h5>
                         <div className='w-full h-1 bg-[#69CED1] my-3 hidden lg:flex'>
                             <div className='w-[30.03px] h-[30.03px] flex items-center justify-center rounded-full bg-[#69CED1] ml-[-16px] mt-[-12px]'>
                                 <div className='w-[20.03px] h-[20.03px] rounded-full m-auto bg-[#011718]'></div>
                             </div>
                         </div>
-                        <h5 className='text-[20px] md:text-[27px] lg:text-right'>The Birth of Xeleron</h5>
+                        <h5 className='text-[20px] md:text-[27px] lg:text-right'>The Expansion of Xeleron</h5>
                     </div></div>
             </div>
 
-            {/* 88888888888888888888888888888888 */}
 
             <div className='flex flex-col lg:flex-row items-center lg:items-start mt-7 lg:mt-0'>
             <div className='lg:w-[48%] flex flex-col lg:flex-row lg:justify-end w-full'><div className='max-w-[388.54px] w-full lg:w-[300.54px] lg:h-[497.47px] self-center lg:self-start lg:flex flex-col justify-center lg:border-r-2'>
@@ -73,7 +71,7 @@ function Roadmap() {
                             <div className='w-[20.03px] h-[20.03px] rounded-full m-auto bg-[#011718]'></div>
                         </div>
                     </div>
-                    <h5 className='text-[20px] md:text-[27px]'>The Birth of Xeleron</h5>
+                    <h5 className='text-[20px] md:text-[27px]'>Taking flight Beyond zkSync</h5>
                 </div></div>
 
                 <div className='lg:w-[52%] w-full h-[360.77px] sm:h-[497.47px] flex justify-center lg:justify-start'><div className='relative max-w-[388.54px] w-full sm:w-[388.54px] h-[360.77px] sm:h-[497.47px] mt-9 lg:ml-10'>
@@ -88,22 +86,6 @@ function Roadmap() {
             </div>
         </div>
 
-        {/* <div className='border w-[200px] pt-8 h-16'>
-            <div className='border-b-2 w-3/5 border-r-2 border-t-[#69CED1] h-5 rounded-e-md relative'>
-                <div className='absolute right-[-1px] top-[0] w-[100px] border-t-2 border-l-2 border-t-[#69CED1] h-2'></div>
-            </div>
-            
-        </div> */}
-        {/* <svg viewBox='' className='border'>
-            <path className='fill-none stroke-[5px] stroke-white' d='
-                M 0,0
-                L 25,0
-                Q 30,0
-                    30,5
-                L 30,25
-                
-            '/>
-        </svg> */}
     </section>
   )
 }

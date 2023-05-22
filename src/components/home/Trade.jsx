@@ -1,6 +1,7 @@
 import React from 'react';
 import Swap from '../../images/swapIcon.png';
 import Farm from '../../images/farmIcon.png';
+import Line1 from '../../images/line1.png';
 import Launch from '../../images/launchIcon.png';
 import Lend from '../../images/lendIcon.png';
 import { Link } from 'react-router-dom';
@@ -8,19 +9,9 @@ import { Link } from 'react-router-dom';
 function Trade() {
   return (
     <section className='text-white bg-[rgba(105,206,209,0.15)] py-10 md:py-16'>
-        <h5 className="text-center hidden sm:block text-[36px]">Powering Staking</h5>
-        <div className='relative border'>
-            <h1 className='text-center text-[36px] sm:text-[45px] md:text-[64px] leading-[45px] sm:leading-[90%] md:leading-[125%] mb-[80px] relative'>Trade . <span className='text-[#69CED1]'>Earn</span> . Lend</h1>
-            {/* <div className='bg-[#69CED1] w-[276px] h-[10.35px] -rotate-6 rounded-[50%/100px,100px,0,0] absolute -bottom-3 left-1/2 -translate-x-[50%]'></div> */}
-            {/* <svg className='border absolute top-12 left-[42%] -translate-[50%] w-fit h-fit' viewBox='0 0'>
-                <path className='stroke-[#69CED1] stroke-[6px] fill-none' d='
-                    M 20,35
-                    Q   40,20
-                        170,30
-                        
-                
-                '/>
-            </svg> */}
+        <h5 className="text-center hidden sm:block text-[36px]">Xeleron Ecosystem</h5>
+        <div className='relative mb-[80px]'>
+            <h1 className='text-center text-[36px] sm:text-[45px] md:text-[64px] leading-[45px] sm:leading-[90%] md:leading-[125%] relative'>Trade . <span className='text-[#69CED1] relative'>Earn <img src={Line1} alt='line' className='absolute -left-9 -bottom-3 min-w-[150%]' /></span> . Lend</h1>
         </div>
 
         <div className='flex justify-center px-4 sm:px-0'>

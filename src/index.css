@@ -34,3 +34,8 @@ code {
 html, body {
   background-color: #0E1E1F;
 }
+
+#filter {
+  background: linear-gradient(96.96deg, rgba(157, 231, 189, 0.16) 21.34%, rgba(54, 205, 119, 0.16) 119.18%);
+  backdrop-filter: blur(20px);
+}

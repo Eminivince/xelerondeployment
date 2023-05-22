@@ -1,5 +1,6 @@
-import React from 'react'
-import { AiOutlineLeft, AiOutlineQuestionCircle } from 'react-icons/ai'
+import React, { useState } from 'react'
+import { AiOutlineClose, AiOutlineLeft, AiOutlineQuestionCircle } from 'react-icons/ai';
+import { BsCheckCircle } from 'react-icons/bs';
 import { useDispatch, useSelector } from 'react-redux'
 import { Link } from 'react-router-dom'
 import { removeRemoveLiquidity, showConfirmRemove } from '../../Features/PoolSlice'
@@ -7,8 +8,13 @@ import { removeRemoveLiquidity, showConfirmRemove } from '../../Features/PoolSli
 function RemoveLiquidity() {
     const { temporaryApproval } = useSelector(state => state.poolFunc)
     const dispatch = useDispatch()
+    const [display, setDisplay] = useState(temporaryApproval)
+    
 
-    console.log(temporaryApproval)
+    function removeAlert(){
+        setDisplay(false)
+    }
+
   return (
     <div className='w-full mx-auto max-w-[464px] sm:w-[464px]'>
         <section className="w-full min-h-[518px] px-3 sm:px-[24px] pt-[24px] pb-[32px] bg-[#152F30] rounded-[8px] m-auto">
@@ -64,6 +70,17 @@ function RemoveLiquidity() {
                 <button disabled={!temporaryApproval} className={`w-1/2 h-[48px] ${temporaryApproval ? 'bg-[#69CED1] text-[#1B595B]' : 'bg-[#1C3738] text-[#011718]'} rounded-[100px]`} onClick={() => dispatch(showConfirmRemove())}>Remove</button>
             </div>
 
+        </section>
+
+        <section id='filter' className={`text-white w-[80%] max-w-[300px] sm:w-[368px] z-50 rounded-lg px-3 py-5 fixed ${display ? 'top-2' : 'top-[-200%]'} right-2`}>
+            <div className='flex'>
+                <i className='text-[#6CDA9C] mr-2'><BsCheckCircle /></i>
+                <div>
+                    <p>Approve Successfully</p>
+                    <a href="http://" className='text-[#69CED1] decoration-[#69CED1] underline'>View of Etherscan</a>
+                </div>
+                <i className='ml-auto cursor-pointer' onClick={removeAlert}><AiOutlineClose /></i>
+            </div>
         </section>
     </div>
   )

@@ -1,12 +1,13 @@
 import React from 'react';
 import Rocket from '../../images/rocket.png';
 import Star from '../../images/star.png';
+import Line2 from '../../images/line2.png';
 
 function AboutUs() {
   return (
     <section className='text-[#011718] bg-[#83D6D8] pt-10 relative'>
         <h5 className='text-[#000000] px-3 text-left sm:text-center text-[20px] md:text-[40px]'>About us</h5>
-        <h1 className='text-[#000000] px-3 text-left sm:text-center text-[36px] lg:text-[64px]'>Discover Xeleron</h1>
+        <h1 className='text-[#000000] px-3 text-left sm:text-center text-[36px] lg:text-[64px] mb-3'>Discover <span className='relative'>Xeleron<img src={Line2} alt='line' className='absolute hidden sm:block left-0 -bottom-3 min-w-[120%]' /></span></h1>
 
         <div className='flex flex-col-reverse lg:flex-row items-center'>
             <div className='min-w-fit'>
