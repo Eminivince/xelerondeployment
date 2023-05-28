@@ -10,6 +10,7 @@ import {
   connectUserAccount,
   disconnectUserAccount,
 } from '../Features/ConnectAccountSlice';
+import { currentNetwork } from '../../contracts';
 
 function WalletModal() {
   const dispatch = useDispatch();
@@ -38,8 +39,7 @@ function WalletModal() {
       const signer = web3Provider.getSigner();
       const address = await signer.getAddress();
       console.log('Wallet address:', address);
-      const chainId = 324;
-      const chainIdInHex = `0x${chainId.toString(16)}`;
+
       provider.on('accountsChanged', (accounts) => {
         if (accounts.length === 0) {
           console.log('User disconnected their wallet');
@@ -57,53 +57,56 @@ function WalletModal() {
         // const web3Provider = new ethers.providers.Web3Provider(provider);
         // Update the network information
 
-        if (network.chainId !== 324) {
-          alert('Please switch back to zkSync Era Mainnet');
+        if (network.chainId !== currentNetwork.chainId) {
+          alert(`Please switch back to ${currentNetwork.name}`);
         }
       });
 
       // Check if the connected network matches the desired one (e.g., "zksync mainnet")
-      if (network.chainId !== chainId) {
+      if (network.chainId !== currentNetwork.chainId) {
         try {
-          // Request to switch the network to zkSync Era Mainnet
+          // Request to switch the network to ${currentNetwork.name}
           await provider.request({
             method: 'wallet_switchEthereumChain',
-            params: [{ chainId: chainIdInHex }], // 0x140 is the chainId for zkSync Era Mainnet
+            params: [{ chainId: currentNetwork.chainIdHex }], // 0x140 is the chainId for ${currentNetwork.name}
           });
-          console.log('Switched to the zkSync Era Mainnet');
+          console.log('Switched to the ' + currentNetwork.name);
         } catch (switchError) {
           console.error(
-            'Failed to switch to the zkSync Era Mainnet:',
+            'Failed to switch to the ' + currentNetwork.name + ':',
             switchError
           );
 
-          // If the wallet_switchEthereumChain request fails, try to add the zkSync Era Mainnet
+          // If the wallet_switchEthereumChain request fails, try to add the ${currentNetwork.name}
           try {
             await provider.request({
               method: 'wallet_addEthereumChain',
               params: [
                 {
-                  chainId: chainIdInHex, // chainId for zkSync Era Mainnet (320 in hexadecimal)
-                  chainName: 'zkSync Era Mainnet',
+                  chainId: currentNetwork.chainIdHex, // chainId for ${currentNetwork.name} (320 in hexadecimal)
+                  chainName: currentNetwork.name,
                   nativeCurrency: {
-                    name: 'zkSync Era Mainnet Ether',
-                    symbol: 'ETH',
+                    name: `${currentNetwork.name}`,
+                    symbol: `${currentNetwork.symbol}`,
                     decimals: 18,
                   },
-                  rpcUrls: ['https://mainnet.era.zksync.io'], // Replace with the actual RPC URL
-                  blockExplorerUrls: ['https://explorer.zksync.io/'], // Replace with the actual block explorer URL
+                  rpcUrls: [`${currentNetwork.rpcUrl}`], // Replace with the actual RPC URL
+                  blockExplorerUrls: [`${currentNetwork.blockExplorer}`], // Replace with the actual block explorer URL
                 },
               ],
             });
-            console.log('Added the zkSync Era Mainnet');
+            console.log(`Added the ${currentNetwork.name}`);
           } catch (addError) {
-            console.error('Failed to add the zkSync Era Mainnet:', addError);
-            alert('Please switch to the zkSync Era Mainnet manually');
+            console.error(
+              `Failed to add the ${currentNetwork.name}:`,
+              addError
+            );
+            alert(`Please switch to the ${currentNetwork.name} manually`);
           }
         }
       } else {
         // Continue with your logic, e.g., creating a contract instance or reading data
-        console.log('Connected to the zkSync Era Mainnet');
+        console.log('Connected to the ${currentNetwork.name}');
       }
       dispatch(hideWalletModal());
       dispatch(connectUserAccount(address));
@@ -145,9 +148,15 @@ function WalletModal() {
         </div>
         <p>
           New to Ethereum?{' '}
-          <a href="" className="text-[#69CED1] underline decoration-[#69CED1]">
+          <a
+            href="https://example.com"
+            className="text-[#69CED1] underline decoration-[#69CED1]"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             Learn more about wallets
           </a>
+          Learn more about wallets
         </p>
       </div>
     </div>
