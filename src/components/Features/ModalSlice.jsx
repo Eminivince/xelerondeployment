@@ -6,6 +6,7 @@ const initialState = {
   tokenModal: false,
   manageModal: false,
   swapETHModal: false,
+  transactionSubmitModal: false
 };
 
 const modalSlice = createSlice({
@@ -42,6 +43,12 @@ const modalSlice = createSlice({
     hideSwapETHforToken: (state) => {
       state.swapETHModal = false;
     },
+    displayTransactionSubmitted: (state) => {
+      state.transactionSubmitModal = true;
+    },
+    hideTransactionSubmitted: (state) => {
+      state.transactionSubmitModal = false;
+    },
   },
 });
 
@@ -56,6 +63,8 @@ export const {
   hideManageModal,
   displaySwapETHforToken,
   hideSwapETHforToken,
+  hideTransactionSubmitted,
+  displayTransactionSubmitted
 } = modalSlice.actions;
 
 export default modalSlice.reducer;

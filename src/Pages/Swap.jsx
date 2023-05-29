@@ -26,12 +26,14 @@ import dash from '../images/dash.png';
 import cex from '../images/cex.png';
 
 function Swap() {
+  const current = 'swap'
   const {
     walletModal,
     transactionSettingsModal,
     tokenModal,
     manageModal,
     swapETHModal,
+    transactionSubmitModal
   } = useSelector((store) => store.modal);
   const { displayImportToken } = useSelector((store) => store.token);
   const dispatch = useDispatch();
@@ -71,15 +73,7 @@ function Swap() {
     displayLiquidityInfo: false,
   });
 
-  // function removeAllInfo(){
-  //     setConfirmSwapInfoBoxes(prevValue => {
-  //         return {
-  //             displayMinimumReceivedInfo: false,
-  //             displayPriceImpactInfo: false,
-  //             displayLiquidityInfo: false
-  //         }
-  //     })
-  // }
+  
 
   function toggleMinimum() {
     setConfirmSwapInfoBoxes((prevValue) => {
@@ -113,14 +107,14 @@ function Swap() {
 
   return (
     <div className="text-white bg-[#0E1E1F] min-h-screen relative px-3">
-      <AltNav />
+      <AltNav current={current}/>
       {walletModal && <WalletModal />}
       {transactionSettingsModal && <SettingsModal />}
       {tokenModal && <TokenModal />}
       {displayImportToken && <ImportTokenModal />}
       {manageModal && <ManageModal />}
       {swapETHModal && <SwapETHforToken swapInputs={swapInputs.from} />}
-      {/* {<TransactionSumbmitted />} */}
+      {transactionSubmitModal && <TransactionSumbmitted />}
 
       {/* all of the modals for the swap page are contained above and below is the conditional rendering of the swap and confirm swap */}
       {!confirmSwap ? (
@@ -192,7 +186,16 @@ function Swap() {
                     placeholder="0"
                     className="w-[50%] sm:w-[230px] pr-2 bg-[#152F30] outline-none text-[20px] sm:text-[34px]"
                   />
-                  {swapInputs.to === '' ? (
+                  {swapInputs.to * 1 ? (
+                    
+                    <div className="flex items-center h-[48px] justify-center cursor-pointer">
+                    <img src={dash} alt="dash" />
+                    <span className="ml-2">Dash </span>
+                    <i className="ml-2 text-white">
+                      <AiOutlineDown />
+                    </i>
+                  </div>
+                  ) : (
                     <button
                       className="flex items-center text-[#011718] bg-[#69CED1] w-[170px] h-[48px] justify-center rounded-[100px] hover:opacity-70 cursor-pointer"
                       onClick={() => dispatch(displayTokenModal())}
@@ -202,21 +205,13 @@ function Swap() {
                         <AiOutlineDown />
                       </i>
                     </button>
-                  ) : (
-                    <div className="flex items-center h-[48px] justify-center cursor-pointer">
-                      <img src={dash} alt="dash" />
-                      <span className="ml-2">Dash </span>
-                      <i className="ml-2 text-white">
-                        <AiOutlineDown />
-                      </i>
-                    </div>
                   )}
                 </div>
                 <p>Balance: -</p>
               </div>
             </div>
 
-            {swapInputs.to.length > 0 && swapInputs.from.length > 0 ? (
+            {swapInputs.to * 1 && swapInputs.from * 1 ? (
               <button
                 className="text-[#011718] h-[48px] w-full max-w-[384px] sm:w-[384px] bg-[#69CED1] block m-auto mt-7 rounded-[100px]"
                 onClick={displayConfirmSwap}
@@ -229,7 +224,7 @@ function Swap() {
               </button>
             )}
           </section>
-          {swapInputs.to.length > 0 && swapInputs.from.length > 0 ? (
+          {swapInputs.to * 1 && swapInputs.from * 1 ? (
             <div className="text-[#DCDCDC] w-full max-w-[464px] sm:w-[464px] px-3 sm:px-[24px] m-auto mt-5">
               <p className="flex items-center justify-between mb-3">
                 <span className="flex items-center relative">

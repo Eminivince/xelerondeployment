@@ -1,7 +1,7 @@
 import React, { useState } from 'react'
 import { AiOutlineClose } from 'react-icons/ai'
 import { useDispatch } from 'react-redux'
-import { hideSwapETHforToken } from '../Features/ModalSlice'
+import { displayTransactionSubmitted, hideSwapETHforToken } from '../Features/ModalSlice'
 
 function SwapETHforToken({swapInputs}) {
     // const [display, setFilterManage] = useState({
@@ -78,7 +78,7 @@ function SwapETHforToken({swapInputs}) {
                             <div className='w-1/2 flex justify-center'>
                                 <p className='text-[#69CED1]'>Reject</p>
                             </div>
-                            <button className='bg-[#69CED1] w-1/2 text-black hover:bg-[#266161] hover:text-white h-[48px] rounded-[100px]'>Confirm</button>
+                            <button className='bg-[#69CED1] w-1/2 text-black hover:bg-[#266161] hover:text-white h-[48px] rounded-[100px]' onClick={() => dispatch(displayTransactionSubmitted())}>Confirm</button>
                         </div>
                     </div> 
                     :

@@ -51,7 +51,7 @@ function CreateAPair() {
                             className='w-[50%] sm:w-[230px] pr-[8%] sm:pr-[25px] bg-[#152F30] outline-none text-[20px] sm:text-[34px]'
                         />
         
-                        <div className='flex items-center cursor-pointer'>
+                        <div className='flex items-center cursor-pointer' onClick={() => dispatch(showPoolTokenModal())}>
                             <img src={blackDiamond} alt="black-diamond" className='w-[40px] h-[40px]'/>
                             <span className='text-[18px] ml-2'>ETH</span>
                             <i className='ml-2'><AiOutlineDown /></i>

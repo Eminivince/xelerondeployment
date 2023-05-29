@@ -10,7 +10,10 @@ import {
   connectUserAccount,
   disconnectUserAccount,
 } from './Features/ConnectAccountSlice';
-function AltNav() {
+
+
+
+function AltNav({current}) {
   const dispatch = useDispatch();
   const { status: connectStatus, account } = useSelector(
     (state) => state.connectionStatus
@@ -84,11 +87,12 @@ function AltNav() {
 
         <ul className="flex flex-col md:flex-row w-full items-center md:w-[40%]">
           <li className="w-fit md:w-3/12 text-center mb-5 md:mb-0 relative">
-            <div className="h-[2px] w-full absolute left-0 -bottom-1 md:-bottom-2 bg-white"></div>
-            <Link>Swap</Link>
+            <div className={`h-[2px] w-full absolute left-0 -bottom-1 md:-bottom-2 bg-white ${current === 'swap' ? 'block' : 'hidden'}`}></div>
+            <Link to='/swap'>Swap</Link>
           </li>
-          <li className="w-3/12 text-center mb-5 md:mb-0">
-            <Link>Farm</Link>
+          <li className="w-3/12 text-center mb-5 md:mb-0 relative">
+            <div className={`h-[2px] w-full absolute left-0 -bottom-1 md:-bottom-2 bg-white ${current === 'pool' ? 'block' : 'hidden'}`}></div>
+            <Link to='/pool'>Pool</Link>
           </li>
           <li className="w-6/12 text-center mb-5 md:mb-0">
             <Link>About Xeleron</Link>

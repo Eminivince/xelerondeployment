@@ -9,10 +9,11 @@ import PoolTokenModal from '../components/Pool/PoolTokenModal'
 function Pool() {
   const {transactionSettingsModal} = useSelector((store) => store.modal);
   const { displayPoolTokenModal, displayCreateAPair } = useSelector((store) => store.poolFunc)
+  const current = 'pool'
 
   return (
     <main className='text-white relative min-h-[100vh]'>
-        <AltNav />
+        <AltNav current={current}/>
         {displayPoolTokenModal &&<PoolTokenModal />}
         {transactionSettingsModal && <SettingsModal />}
         { !displayCreateAPair ? <Liquidity /> :
