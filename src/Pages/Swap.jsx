@@ -8,7 +8,7 @@ import {
 } from 'react-icons/ai';
 import { BsArrowDownUp } from 'react-icons/bs';
 import AltNav from '../components/AltNav';
-import WalletModal from '../components/Modal/WalletModal';
+
 import blackDiamond from '../images/blackdiamond.png';
 import { useDispatch, useSelector } from 'react-redux';
 import SettingsModal from '../components/Modal/SettingsModal';
@@ -26,13 +26,8 @@ import dash from '../images/dash.png';
 import cex from '../images/cex.png';
 
 function Swap() {
-  const {
-    walletModal,
-    transactionSettingsModal,
-    tokenModal,
-    manageModal,
-    swapETHModal,
-  } = useSelector((store) => store.modal);
+  const { transactionSettingsModal, tokenModal, manageModal, swapETHModal } =
+    useSelector((store) => store.modal);
   const { displayImportToken } = useSelector((store) => store.token);
   const dispatch = useDispatch();
 
@@ -114,7 +109,7 @@ function Swap() {
   return (
     <div className="text-white bg-[#0E1E1F] min-h-screen relative px-3">
       <AltNav />
-      {walletModal && <WalletModal />}
+
       {transactionSettingsModal && <SettingsModal />}
       {tokenModal && <TokenModal />}
       {displayImportToken && <ImportTokenModal />}
