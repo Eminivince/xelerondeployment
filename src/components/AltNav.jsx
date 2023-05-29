@@ -10,16 +10,11 @@ import {
   connectUserAccount,
   disconnectUserAccount,
 } from './Features/ConnectAccountSlice';
-<<<<<<< HEAD
+import { currentNetwork } from '../contracts';
 
 
 
 function AltNav({current}) {
-=======
-import { currentNetwork } from '../contracts';
-
-function AltNav() {
->>>>>>> 49d22b81863569929a5cd84d090d31a7fe4220a1
   const dispatch = useDispatch();
   const { status: connectStatus, account } = useSelector(
     (state) => state.connectionStatus
