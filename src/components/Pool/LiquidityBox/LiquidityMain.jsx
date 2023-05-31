@@ -5,15 +5,8 @@ import green from '../../../images/greenpool.png';
 import path from '../../../images/pathIcon.png';
 import { useDispatch } from 'react-redux';
 import { showCreateAPair, showRemoveLiquidity } from '../../Features/PoolSlice';
-import {
-  useAccount,
-  useContractRead,
-  useContractWrite,
-  usePrepareContractWrite,
-  useWaitForTransaction,
-} from 'wagmi';
-function LiquidityMain() {
-  const { address, isConnected } = useAccount();
+
+function LiquidityMain({ addLiquidity }) {
   const dispatch = useDispatch();
 
   const [pools, setPools] = useState([
@@ -49,7 +42,10 @@ function LiquidityMain() {
           >
             Create a Pair
           </button>
-          <button className="text-[#011718] bg-[#69CED1] sm:w-[127px] h-[36px] sm:h-[48px] px-2 rounded-[20px] sm:rounded-[100px] ml-2 hover:brightness-75">
+          <button
+            onClick={addLiquidity}
+            className="text-[#011718] bg-[#69CED1] sm:w-[127px] h-[36px] sm:h-[48px] px-2 rounded-[20px] sm:rounded-[100px] ml-2 hover:brightness-75"
+          >
             Add Liquidity
           </button>
         </div>
