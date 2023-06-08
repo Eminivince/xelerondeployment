@@ -18,6 +18,18 @@ const TokenB = {
   symbol: 'NTA',
   address: '0x9A8D77e9f4617cb25Afc4Aa988B6694e900f2081',
 };
+const TokenC = {
+  name: 'Xeleron',
+  decimals: 18,
+  symbol: 'XLR',
+  address: '0x7dB2E8a5E976051909e4ad722294610cC054f989',
+};
+const TokenD = {
+  name: 'NewTokenB',
+  decimals: 18,
+  symbol: 'NTB',
+  address: '0x768021cC61b7741E18D14D9372a3B9CbAf64Da54',
+};
 
 export {
   routerABI,
@@ -28,5 +40,7 @@ export {
   Pair,
   TokenA,
   TokenB,
+  TokenC,
+  TokenD,
   UniV2Router,
 };

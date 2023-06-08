@@ -7,7 +7,7 @@ import { ethers } from 'ethers';
 import { useAccount, useWalletClient } from 'wagmi';
 import {
   TokenA,
-  TokenB,
+  TokenD,
   UniV2Router,
   routerABI,
   erc20ABI,
@@ -29,8 +29,7 @@ function Liquidity() {
   const [signer, setSigner] = useState(null);
 
   const { address, isConnected } = useAccount();
-  const { data } = useWalletClient();
-  const [approve, setApprove] = useState(false);
+
   const [factoryContract, setFactoryContract] = useState(null);
   const [routerContract, setRouterContract] = useState(null);
   const [tokenBalances, setTokenBalances] = useState({
@@ -57,7 +56,7 @@ function Liquidity() {
         signer
       );
       const tokenBContract = new ethers.Contract(
-        TokenB.address,
+        TokenD.address,
         erc20ABI,
         signer
       );
@@ -71,7 +70,7 @@ function Liquidity() {
 
       const tokenBBalance = ethers.utils.formatUnits(
         balanceBToken,
-        TokenB.decimals
+        TokenD.decimals
       );
 
       console.log(`Balance of Token A: ${tokenABalance}`);
@@ -94,21 +93,21 @@ function Liquidity() {
         signer
       );
       const tokenBContract = new ethers.Contract(
-        TokenB.address,
+        TokenD.address,
         erc20ABI,
         signer
       );
       const amountA = '0.01';
       const amountB = '1';
       const amountADesired = ethers.utils.parseUnits(amountA, TokenA.decimals); // Replace with desired amounts
-      const amountBDesired = ethers.utils.parseUnits(amountB, TokenB.decimals); // Replace with desired amounts
+      const amountBDesired = ethers.utils.parseUnits(amountB, TokenD.decimals); // Replace with desired amounts
       const tokenABalanceBigNumber = ethers.utils.parseUnits(
         tokenBalances.tokenA,
         TokenA.decimals
       );
       const tokenBBalanceBigNumber = ethers.utils.parseUnits(
         tokenBalances.tokenB,
-        TokenB.decimals
+        TokenD.decimals
       );
 
       // Check if the token balances are sufficient for approval
@@ -117,8 +116,8 @@ function Liquidity() {
         throw new Error(`Insufficient ${TokenA.name} balance for approval`);
       }
       if (tokenBBalanceBigNumber.lt(amountBDesired)) {
-        console.log(`Insufficient ${TokenB.name} balance for approval`);
-        throw new Error(`Insufficient ${TokenB.name} balance for approval`);
+        console.log(`Insufficient ${TokenD.name} balance for approval`);
+        throw new Error(`Insufficient ${TokenD.name} balance for approval`);
       }
 
       // Approve tokenA
@@ -140,7 +139,7 @@ function Liquidity() {
       // Call the getPair function with the token addresses
       const pairAddress = await factoryContract.getPair(
         TokenA.address,
-        TokenB.address
+        TokenD.address
       );
       console.log(pairAddress);
       // If the pair doesn't exist, the function will return the zero address
@@ -158,7 +157,7 @@ function Liquidity() {
       // Call the createPair function with the token addresses
       const tx = await factoryContract.createPair(
         TokenA.address,
-        TokenB.address
+        TokenD.address
       );
       const receipt = await tx.wait();
       console.log(
@@ -184,15 +183,15 @@ function Liquidity() {
     await approveTokens();
 
     const amountADesired = ethers.utils.parseUnits('0.001', TokenA.decimals); // Replace with desired amounts
-    const amountBDesired = ethers.utils.parseUnits('1', TokenB.decimals); // Replace with desired amounts
+    const amountBDesired = ethers.utils.parseUnits('1', TokenD.decimals); // Replace with desired amounts
     const amountAMin = ethers.utils.parseUnits('0.009', TokenA.decimals); // Replace with min amounts
-    const amountBMin = ethers.utils.parseUnits('1', TokenB.decimals); // Replace with min amounts
+    const amountBMin = ethers.utils.parseUnits('1', TokenD.decimals); // Replace with min amounts
     const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
 
     try {
       const tx = await routerContract.addLiquidity(
         TokenA.address,
-        TokenB.address,
+        TokenD.address,
         amountADesired,
         amountBDesired,
         amountAMin,

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   AiOutlineClose,
   AiOutlineDown,
@@ -21,9 +21,25 @@ import TokenModal from '../components/Modal/TokenModal';
 import ImportTokenModal from '../components/Modal/ImportTokenModal';
 import ManageModal from '../components/Modal/ManageModal';
 import SwapETHforToken from '../components/Modal/SwapETHforToken';
-import TransactionSumbmitted from '../components/Modal/TransactionSumbmitted';
 import dash from '../images/dash.png';
 import cex from '../images/cex.png';
+import { ethers } from 'ethers';
+import {
+  Factory,
+  TokenA,
+  TokenD,
+  UniV2Router,
+  erc20ABI,
+  factoryABI,
+  routerABI,
+} from '../contracts';
+import Web3Modal from 'web3modal';
+import { useAccount } from 'wagmi';
+import {
+  approveTokens,
+  createPair,
+  getEstimatedTokensOut,
+} from '../utils/helpers';
 
 function Swap() {
   const { transactionSettingsModal, tokenModal, manageModal, swapETHModal } =
@@ -32,18 +48,48 @@ function Swap() {
   const dispatch = useDispatch();
 
   const [swapInputs, setSwapInputs] = useState({
-    from: '',
-    to: '',
+    from: {
+      value: '',
+      address: TokenD.address,
+      symbol: TokenD.symbol,
+      decimals: TokenD.decimals,
+      balance: 0,
+    },
+    to: {
+      value: '',
+      address: TokenA.address,
+      symbol: TokenA.symbol,
+      decimals: TokenA.decimals,
+      balance: 0,
+    },
   });
 
-  function fillSwapInputs(e) {
+  async function fillSwapInputs(e) {
     const { name, value } = e.target;
+    let oppositeInput = name === 'from' ? 'to' : 'from';
+
     setSwapInputs((prevValue) => {
       return {
         ...prevValue,
-        [name]: value,
+        [name]: { ...prevValue[name], value },
       };
     });
+
+    if (name === 'from') {
+      const amountOut = await getEstimatedTokensOut({
+        routerContract,
+        amountIn: value,
+        TokenIn: swapInputs.from,
+        TokenOut: swapInputs.to,
+      });
+
+      setSwapInputs((prevValue) => {
+        return {
+          ...prevValue,
+          [oppositeInput]: { ...prevValue[oppositeInput], value: amountOut },
+        };
+      });
+    }
   }
 
   function clearSwapInputFrom() {
@@ -105,6 +151,137 @@ function Swap() {
       };
     });
   }
+  const [signer, setSigner] = useState(null);
+
+  const { address, isConnected } = useAccount();
+  const [routerContract, setRouterContract] = useState(null);
+  const [factoryContract, setFactoryContract] = useState(null);
+  const [tokenAContract, setTokenAContract] = useState(null);
+  const [tokenBContract, setTokenBContract] = useState(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [amountIn, setAmountIn] = useState(10);
+  const [amountOut, setAmountOut] = useState(0);
+  useEffect(() => {
+    if (!isConnected) {
+      alert('Please connect your wallet');
+      return;
+    }
+    const web3Modal = new Web3Modal();
+    web3Modal.connect().then(async (provider) => {
+      const web3Provider = new ethers.providers.Web3Provider(provider);
+      const signer = web3Provider.getSigner();
+      setSigner(signer);
+      const fContract = new ethers.Contract(Factory, factoryABI, signer);
+      const rContract = new ethers.Contract(UniV2Router, routerABI, signer);
+
+      setRouterContract(rContract);
+      setFactoryContract(fContract);
+      const tokenAContract = new ethers.Contract(
+        swapInputs.from.address,
+        erc20ABI,
+        signer
+      );
+      const tokenBContract = new ethers.Contract(
+        swapInputs.to.address,
+        erc20ABI,
+        signer
+      );
+      setTokenAContract(tokenAContract);
+      setTokenBContract(tokenBContract);
+
+      const balanceAToken = await tokenAContract.balanceOf(address);
+      const balanceBToken = await tokenBContract.balanceOf(address);
+      const tokenABalance = ethers.utils.formatUnits(
+        balanceAToken,
+        swapInputs.from.decimals
+      );
+
+      const tokenBBalance = ethers.utils.formatUnits(
+        balanceBToken,
+        swapInputs.to.decimals
+      );
+
+      setSwapInputs((prevValue) => {
+        return {
+          ...prevValue,
+          from: { ...prevValue.from, balance: tokenABalance },
+          to: { ...prevValue.to, balance: tokenBBalance },
+        };
+      });
+
+      const PairAddress = await createPair({
+        factoryContract: fContract,
+        TokenA: TokenA,
+        TokenB: TokenD,
+      });
+      // console.log(PairAddress);
+      const amountOut = await getEstimatedTokensOut({
+        routerContract: rContract,
+        amountIn: `${amountIn}`,
+        TokenIn: TokenD,
+        TokenOut: TokenA,
+      });
+      setAmountOut(amountOut);
+    });
+  }, [address, amountIn, isConnected]);
+  const swapExactTokensForTokens = async () => {
+    try {
+      setIsLoading(true);
+      await approveTokens({
+        signer,
+        TokenA: swapInputs.from,
+        TokenB: swapInputs.to,
+        amountA: amountIn,
+        amountB: amountOut,
+      });
+      const path = [TokenD.address, TokenA.address];
+      const to = address;
+      const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
+      const amountOutMin = (Number(amountOut) * 0.9).toFixed(
+        swapInputs.to.decimals
+      );
+      console.log(amountOutMin);
+
+      const tx = await routerContract.swapExactTokensForTokens(
+        ethers.utils.parseUnits(amountIn.toString(), swapInputs.from.decimals),
+        ethers.utils.parseUnits(
+          amountOutMin.toString(),
+          swapInputs.to.decimals
+        ),
+        path,
+        to,
+        deadline,
+        { gasLimit: 250000 }
+      );
+
+      await tx.wait();
+      console.log(`Transaction hash: ${tx.hash}`);
+      setIsLoading(false);
+
+      const balanceAToken = await tokenAContract.balanceOf(address);
+      const balanceBToken = await tokenBContract.balanceOf(address);
+      const tokenABalance = ethers.utils.formatUnits(
+        balanceAToken,
+        swapInputs.from.decimals
+      );
+
+      const tokenBBalance = ethers.utils.formatUnits(
+        balanceBToken,
+        swapInputs.to.decimals
+      );
+
+      setSwapInputs((prevValue) => {
+        return {
+          ...prevValue,
+          from: { ...prevValue.from, value: '', balance: tokenABalance },
+          to: { ...prevValue.to, value: '', balance: tokenBBalance },
+        };
+      });
+    } catch (err) {
+      setIsLoading(false);
+      console.log(err);
+    }
+  };
 
   return (
     <div className="text-white bg-[#0E1E1F] min-h-screen relative px-3">
@@ -138,7 +315,7 @@ function Swap() {
                   <input
                     type="text"
                     name="from"
-                    value={swapInputs.from}
+                    value={swapInputs.from.value}
                     id=""
                     onChange={fillSwapInputs}
                     placeholder="0"
@@ -166,7 +343,7 @@ function Swap() {
                     </i>
                   </div>
                 </div>
-                <p>Balance: 70.42</p>
+                <p>Balance: {swapInputs.from.balance}</p>
               </div>
 
               <div className="bg-white h-[2px] my-7 flex items-center justify-end">
@@ -181,7 +358,7 @@ function Swap() {
                   <input
                     type="text"
                     name="to"
-                    value={swapInputs.to}
+                    value={swapInputs.to.value}
                     onChange={fillSwapInputs}
                     id=""
                     placeholder="0"
@@ -207,14 +384,21 @@ function Swap() {
                     </div>
                   )}
                 </div>
-                <p>Balance: -</p>
+                <p>Balance: {swapInputs.to.balance}</p>
               </div>
             </div>
 
-            {swapInputs.to.length > 0 && swapInputs.from.length > 0 ? (
+            {swapInputs.to.value.length > 0 &&
+            swapInputs.from.value.length > 0 ? (
               <button
-                className="text-[#011718] h-[48px] w-full max-w-[384px] sm:w-[384px] bg-[#69CED1] block m-auto mt-7 rounded-[100px]"
-                onClick={displayConfirmSwap}
+                className={` h-[48px] w-full max-w-[384px] sm:w-[384px]  block m-auto mt-7 rounded-[100px] ${
+                  isLoading
+                    ? 'bg-[#1C3738] text-[#69CED1]'
+                    : 'bg-[#69CED1] text-[#011718]'
+                }`}
+                // onClick={displayConfirmSwap}
+                onClick={swapExactTokensForTokens}
+                disabled={isLoading}
               >
                 Swap
               </button>
