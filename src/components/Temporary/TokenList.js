@@ -1,5 +1,6 @@
 import triangle from '../../images/tri.png';
 import BNB from '../../images/bnb.png';
+import cex from '../../images/cex.png';
 
 export const TokenList = [
     {
@@ -8,7 +9,8 @@ export const TokenList = [
         tokenName: 'INCH Token',
         desc: '',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'INCH'
     },
     {
         id: 2,
@@ -16,15 +18,17 @@ export const TokenList = [
         tokenName: 'INCH Token',
         desc: '',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'INCH'
     },
     {
         id: 3,
-        logo: triangle,
-        tokenName: 'INCH Token',
+        logo: cex,
+        tokenName: 'CEX',
         desc: '',
-        unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        unit: '10.059 cex',
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'CEX'
     },
     {
         id: 4,
@@ -32,7 +36,8 @@ export const TokenList = [
         tokenName: 'INCH Token',
         desc: '',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'INCH'
     },
     {
         id: 5,
@@ -40,7 +45,8 @@ export const TokenList = [
         tokenName: 'INCH Token',
         desc: '',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'INCH'
     },
     {
         id: 6,
@@ -48,7 +54,8 @@ export const TokenList = [
         tokenName: 'INCH Token',
         desc: '',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'INCH'
     },
     {
         id: 7,
@@ -56,7 +63,8 @@ export const TokenList = [
         tokenName: 'INCH Token',
         desc: '',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'INCH'
     },
     {
         id: 8,
@@ -64,7 +72,8 @@ export const TokenList = [
         tokenName: 'INCH Token',
         desc: '',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'INCH'
     },
     {
         id: 9,
@@ -72,7 +81,8 @@ export const TokenList = [
         tokenName: 'INCH Token',
         desc: '',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'INCH'
     },
     {
         id: 10,
@@ -80,7 +90,8 @@ export const TokenList = [
         tokenName: 'INCH Token',
         desc: '',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'INCH'
     },
     {
         id: 11,
@@ -88,7 +99,8 @@ export const TokenList = [
         tokenName: 'INCH Token',
         desc: '',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'INCH'
     },
     {
         id: 12,
@@ -96,7 +108,8 @@ export const TokenList = [
         tokenName: 'BNB Binance coin',
         desc: 'via Kleros Tokens',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'BNB'
     },
     {
         id: 13,
@@ -104,7 +117,8 @@ export const TokenList = [
         tokenName: 'sBNB Synth Binance coin',
         desc: 'via Synthetix',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'BNB'
     },
     {
         id: 14,
@@ -112,6 +126,7 @@ export const TokenList = [
         tokenName: 'iBNB Synth inverse Binance coin',
         desc: 'via Kleros Tokens',
         unit: '10.059 INCH',
-        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52'
+        token: '0xB8c77482e45F1F44dE1745F52C74426C631bDD52',
+        shortName: 'iBNB'
     },
 ]

@@ -15,6 +15,7 @@ import SettingsModal from '../components/Modal/SettingsModal';
 import {
   displaySwapETHforToken,
   displayTokenModal,
+  displayTokenModalSwapFrom,
   showTransactionSettingsModal,
 } from '../components/Features/ModalSlice';
 import TokenModal from '../components/Modal/TokenModal';
@@ -23,7 +24,8 @@ import ManageModal from '../components/Modal/ManageModal';
 import SwapETHforToken from '../components/Modal/SwapETHforToken';
 import TransactionSumbmitted from '../components/Modal/TransactionSumbmitted';
 import dash from '../images/dash.png';
-import cex from '../images/cex.png';
+import TokenModalSwapFrom from '../components/Modal/TokenModalSwapFrom';
+import ImportTokenModalForSwapFrom from '../components/Modal/ImportTokenModalForSwapFrom';
 
 function Swap() {
   const current = 'swap'
@@ -31,11 +33,18 @@ function Swap() {
     walletModal,
     transactionSettingsModal,
     tokenModal,
+    tokenModalSwapFrom,
     manageModal,
     swapETHModal,
     transactionSubmitModal
   } = useSelector((store) => store.modal);
-  const { displayImportToken } = useSelector((store) => store.token);
+
+  const {
+    displayImportToken,
+    defaultTokenSwapFrom,
+    defaultTokenSwapTo,
+    displayImportTokenSwapFrom
+  } = useSelector((store) => store.token);
   const dispatch = useDispatch();
 
   const [swapInputs, setSwapInputs] = useState({
@@ -110,8 +119,10 @@ function Swap() {
       <AltNav current={current}/>
       {walletModal && <WalletModal />}
       {transactionSettingsModal && <SettingsModal />}
+      {tokenModalSwapFrom && <TokenModalSwapFrom />}
       {tokenModal && <TokenModal />}
       {displayImportToken && <ImportTokenModal />}
+      {displayImportTokenSwapFrom && <ImportTokenModalForSwapFrom />}
       {manageModal && <ManageModal />}
       {swapETHModal && <SwapETHforToken swapInputs={swapInputs.from} />}
       {transactionSubmitModal && <TransactionSumbmitted />}
@@ -153,13 +164,13 @@ function Swap() {
                   >
                     <AiOutlineClose />
                   </i>
-                  <div className="flex items-center cursor-pointer">
+                  <div className="flex items-center cursor-pointer" onClick={() => dispatch(displayTokenModalSwapFrom())}>
                     <img
-                      src={blackDiamond}
+                      src={defaultTokenSwapFrom.logo ? defaultTokenSwapFrom.logo : blackDiamond}
                       alt="black-diamond"
                       className="w-[40px] h-[40px]"
                     />
-                    <span className="text-[18px] ml-2">ETH</span>
+                    <span className="text-[18px] ml-2">{defaultTokenSwapFrom.shortName ? defaultTokenSwapFrom.shortName : 'ETH'}</span>
                     <i className="ml-2">
                       <AiOutlineDown />
                     </i>
@@ -186,11 +197,12 @@ function Swap() {
                     placeholder="0"
                     className="w-[50%] sm:w-[230px] pr-2 bg-[#152F30] outline-none text-[20px] sm:text-[34px]"
                   />
-                  {swapInputs.to * 1 ? (
+                  {defaultTokenSwapTo.tokenName ? (
                     
-                    <div className="flex items-center h-[48px] justify-center cursor-pointer">
-                    <img src={dash} alt="dash" />
-                    <span className="ml-2">Dash </span>
+                    <div className="flex items-center h-[48px] justify-center cursor-pointer"
+                    onClick={() => dispatch(displayTokenModal())}>
+                    <img src={defaultTokenSwapTo.logo} alt="dash" />
+                    <span className="ml-2">{defaultTokenSwapTo.shortName} </span>
                     <i className="ml-2 text-white">
                       <AiOutlineDown />
                     </i>
@@ -211,7 +223,7 @@ function Swap() {
               </div>
             </div>
 
-            {swapInputs.to * 1 && swapInputs.from * 1 ? (
+            {swapInputs.to * 1 && swapInputs.from * 1 && defaultTokenSwapTo.tokenName ? (
               <button
                 className="text-[#011718] h-[48px] w-full max-w-[384px] sm:w-[384px] bg-[#69CED1] block m-auto mt-7 rounded-[100px]"
                 onClick={displayConfirmSwap}
@@ -224,7 +236,7 @@ function Swap() {
               </button>
             )}
           </section>
-          {swapInputs.to * 1 && swapInputs.from * 1 ? (
+          {swapInputs.to * 1 && swapInputs.from * 1 && defaultTokenSwapTo.tokenName ? (
             <div className="text-[#DCDCDC] w-full max-w-[464px] sm:w-[464px] px-3 sm:px-[24px] m-auto mt-5">
               <p className="flex items-center justify-between mb-3">
                 <span className="flex items-center relative">
@@ -307,11 +319,13 @@ function Swap() {
                 </p>
                 <div className="flex items-center cursor-pointer">
                   <img
-                    src={blackDiamond}
+                    src={defaultTokenSwapFrom.logo ? defaultTokenSwapFrom.logo : blackDiamond}
                     alt="black-diamond"
                     className="w-[40px] h-[40px]"
                   />
-                  <span className="text-[18px] ml-2">ETH</span>
+                  <span className="text-[18px] ml-2">
+                  {defaultTokenSwapFrom.shortName ? defaultTokenSwapFrom.shortName : 'ETH'}
+                  </span>
                 </div>
               </div>
             </div>
@@ -324,8 +338,8 @@ function Swap() {
                 {swapInputs.to}
               </p>
               <div className="flex items-center h-[48px] justify-center cursor-pointer">
-                <img src={cex} alt="dash" />
-                <span className="ml-2">Cex</span>
+                <img src={defaultTokenSwapTo.logo} alt="dash" />
+                <span className="ml-2">{defaultTokenSwapTo.shortName}</span>
                 <i className="ml-2 text-white">
                   <AiOutlineDown />
                 </i>

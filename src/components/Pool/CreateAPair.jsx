@@ -10,7 +10,7 @@ import ConfirmSupplyModal from './ConfirmSupplyModal'
 
 function CreateAPair() {
 
-    const {displayConfirmSupplyModal} = useSelector(store => store.poolFunc)
+    const {displayConfirmSupplyModal, firstInputToken} = useSelector(store => store.poolFunc)
     const dispatch = useDispatch()
 
     const [inputs, setInputs] = useState({
@@ -52,8 +52,8 @@ function CreateAPair() {
                         />
         
                         <div className='flex items-center cursor-pointer' onClick={() => dispatch(showPoolTokenModal())}>
-                            <img src={blackDiamond} alt="black-diamond" className='w-[40px] h-[40px]'/>
-                            <span className='text-[18px] ml-2'>ETH</span>
+                            <img src={firstInputToken.logo ? firstInputToken.logo : blackDiamond} alt="black-diamond" className='w-[40px] h-[40px]'/>
+                            <span className='text-[18px] ml-2'>{firstInputToken.shortName ? firstInputToken.shortName : "ETH"}</span>
                             <i className='ml-2'><AiOutlineDown /></i>
                         </div>
                     </div>

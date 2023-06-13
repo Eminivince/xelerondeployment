@@ -28,6 +28,3 @@ function ConnectToELLAsset() {
 
 export default ConnectToELLAsset
 
-{/* <ApproveConnect /> */}
-{/* <ConfirmConnect /> */}
-{/* <CustomizeGas /> */}

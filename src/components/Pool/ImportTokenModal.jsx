@@ -2,26 +2,28 @@ import React, { useState } from 'react';
 import { AiOutlineClose, AiOutlineLeft, AiOutlineCheck } from 'react-icons/ai';
 import { useDispatch, useSelector } from 'react-redux';
 import Caution from '../../images/caution.png'
-import { hideTokenModal } from '../Features/ModalSlice';
-import { hideImportToken, ValidateImport } from '../Features/TokenSlice';
+import { hideTokenModalSwapFrom } from '../Features/ModalSlice';
+import { hidePoolImportTokenModal, removePoolTokenModal, validateFirstInputImport } from '../Features/PoolSlice';
+import { hideImportTokenSwapFrom, ValidateImportSwapFrom } from '../Features/TokenSlice';
 
 function ImportTokenModal() {
 
-    const {currentImport} = useSelector((store) => store.token);
+    const {firstInputTokenImport} = useSelector((store) => store.poolFunc);
     const dispatch = useDispatch()
 
+    const [proceed, setProceed] = useState(false)
+
     function completeTokenImport(){
-        dispatch(ValidateImport())
-        dispatch(hideImportToken())
-        dispatch(hideTokenModal())
+        dispatch(validateFirstInputImport())
+        dispatch(removePoolTokenModal())
+        dispatch(hidePoolImportTokenModal())
+        
     }
 
     function closeTokenModals(){
-        dispatch(hideImportToken())
-        dispatch(hideTokenModal())
+        dispatch(removePoolTokenModal())
+        dispatch(hidePoolImportTokenModal())
     }
-
-    const [proceed, setProceed] = useState(false)
 
     function updateApproval(e){
         setProceed(e.target.checked)
@@ -31,17 +33,17 @@ function ImportTokenModal() {
         <div className="bg-[#061111B8] fixed w-full h-fit min-h-[100vh] top-0 left-0 backdrop-blur-[4px] z-50"></div>
         <div className='bg-[#152F30] w-full max-w-[464px] sm:w-[464px] h-[564px] p-4 absolute top-8 left-1/2 -translate-x-1/2 z-50 rounded-lg flex flex-col'>
             <header className='flex items-center mb-5 justify-between'>
-                <div className=' cursor-pointer' onClick={() => dispatch(hideImportToken())}><AiOutlineLeft /></div>
+                <div className=' cursor-pointer' onClick={() => dispatch(hidePoolImportTokenModal())}><AiOutlineLeft /></div>
                 <h3 className=''>Import Token</h3>
                 <div className=' cursor-pointer' onClick={closeTokenModals}><AiOutlineClose /></div>
             </header>
 
-            {currentImport ? <div className='w-full h-[88px] rounded-lg bg-[#1B595B] flex items-center text-[12px] px-3'>
-                <img src={currentImport.logo} alt="" className='mr-3'/>
+            {firstInputTokenImport.tokenName ? <div className='w-full h-[88px] rounded-lg bg-[#1B595B] flex items-center text-[12px] px-3'>
+                <img src={firstInputTokenImport.logo} alt="" className='mr-3'/>
                 <div>
-                    <p>{currentImport.tokenName}</p>
-                    <p>{currentImport.token}</p>
-                    <p>{currentImport.desc}</p>
+                    <p>{firstInputTokenImport.tokenName}</p>
+                    <p>{firstInputTokenImport.token}</p>
+                    <p>{firstInputTokenImport.desc}</p>
                 </div>
             </div> : ''}
 
@@ -60,7 +62,7 @@ function ImportTokenModal() {
                     <div  className='ml-2'>I undertand</div>
                 </label>
 
-                <button className={`bg-[#69CED1] rounded-[100px] w-full max-w-[384px] block m-auto sm:w-[384px] h-[48px] ${proceed ? '' : 'cursor-not-allowed'}`} onClick={completeTokenImport}>Import</button>
+                <button disabled={proceed ? false : true} className={`bg-[#69CED1] rounded-[100px] w-full max-w-[384px] block m-auto sm:w-[384px] h-[48px] ${proceed ? '' : 'cursor-not-allowed'}`} onClick={completeTokenImport}>Import</button>
             </div>
 
 

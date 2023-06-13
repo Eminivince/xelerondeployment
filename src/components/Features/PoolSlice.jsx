@@ -1,4 +1,5 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { TokenList } from "../Temporary/TokenList";
 
 const initialState = {
     displayCreateAPair: false,
@@ -6,7 +7,11 @@ const initialState = {
     displayConfirmSupplyModal: false,
     displayRemoveLiquidity: false,
     displayConfirmRemove: false,
-    temporaryApproval: false
+    temporaryApproval: false,
+    Token_List: TokenList,
+    firstInputToken: {},
+    displayImportTokenFirstInput: false,
+    firstInputTokenImport: {}
 }
 
 
@@ -47,6 +52,22 @@ const PoolSlice = createSlice({
         setTemporaryApproval: (state) => {
             state.temporaryApproval = true
         },
+
+        // The functions below are for selecting and importing token for both inputs
+        selectTokenForFirstInput: ((state, {payload}) => {
+            state.firstInputToken = state.Token_List.find(token => token.id === payload)
+        }),
+        showPoolImportTokenModal: (state, {payload}) => {
+            state.firstInputTokenImport = state.Token_List.find(token => token.id === payload)
+            state.displayImportTokenFirstInput = true
+        },
+        hidePoolImportTokenModal: (state) => {
+            state.displayImportTokenFirstInput = false
+        },
+        validateFirstInputImport: (state) => {
+            state.firstInputToken = state.firstInputTokenImport
+        }
+
     }
 })
 
@@ -61,7 +82,11 @@ export const {
     removeRemoveLiquidity,
     setTemporaryApproval,
     showConfirmRemove,
-    removeConfirmRemove
+    removeConfirmRemove,
+    selectTokenForFirstInput,
+    showPoolImportTokenModal,
+    hidePoolImportTokenModal,
+    validateFirstInputImport
 } = PoolSlice.actions;
 
 export default PoolSlice.reducer;

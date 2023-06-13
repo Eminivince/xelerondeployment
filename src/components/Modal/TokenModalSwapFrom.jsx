@@ -4,11 +4,11 @@ import { BiEdit } from 'react-icons/bi'
 import { TokenList } from '../Temporary/TokenList';
 import { useDispatch } from 'react-redux';
 import groupWallet from '../../images/groupwallet.png';
-import { displayManageModal, hideTokenModal } from '../Features/ModalSlice';
-import { importToken, importTokenForSwapFromAndSwapTo, selectDefaultSwapTo } from '../Features/TokenSlice';
+import { displayManageModal, hideTokenModalSwapFrom } from '../Features/ModalSlice';
+import { importTokenForSwapFromAndSwapTo, importTokenSwapFrom, selectDefaultSwapFrom } from '../Features/TokenSlice';
 
 
-function TokenModal() {
+function TokenModalSwapFrom() {
   const Token_List = TokenList
   const [searchToken, setSearchToken] = useState({
     filteredToken: ''
@@ -22,13 +22,12 @@ function TokenModal() {
   const dispatch = useDispatch()
 
   function selectThisDefaultToken(id){
-    dispatch(selectDefaultSwapTo(id))
-    dispatch(hideTokenModal())
+    dispatch(selectDefaultSwapFrom(id))
+    dispatch(hideTokenModalSwapFrom())
   }
 
-  function importForSwapTo(id){
-    dispatch(importToken(id))
-    
+  function importForSwapFrom(id){
+    dispatch(importTokenSwapFrom(id))
   }
 
   return (
@@ -37,7 +36,7 @@ function TokenModal() {
         <div className='bg-[#152F30] w-full max-w-[464px] sm:w-[464px] h-[564px] p-4 absolute top-8 left-1/2 -translate-x-1/2 z-50 rounded-lg flex flex-col'>
             <header className='flex items-center mb-5'>
                 <h3 className='ml-auto'>Select a Token</h3>
-                <div className='ml-auto cursor-pointer' onClick={() => dispatch(hideTokenModal())}><AiOutlineClose /></div>
+                <div className='ml-auto cursor-pointer' onClick={() => dispatch(hideTokenModalSwapFrom())}><AiOutlineClose /></div>
             </header>
 
             <div className='relative mb-4'>
@@ -61,7 +60,7 @@ function TokenModal() {
                     <p>{token.tokenName}</p>
                     <p>{token.desc}</p>
                   </div>
-                  <p className='ml-auto'>{searchToken.filteredToken.length > 0 ? <button className='bg-[#69CED1] w-[75px] h-[32px] rounded-[100px] hover:opacity-70' onClick={() => importForSwapTo(token.id)}>Import</button> : token.unit}</p>
+                  <p className='ml-auto'>{searchToken.filteredToken.length > 0 ? <button className='bg-[#69CED1] w-[75px] h-[32px] rounded-[100px] hover:opacity-70' onClick={() => importForSwapFrom(token.id)}>Import</button> : token.unit}</p>
                 </button>
               })
               }
@@ -81,4 +80,4 @@ function TokenModal() {
   )
 }
 
-export default TokenModal
+export default TokenModalSwapFrom

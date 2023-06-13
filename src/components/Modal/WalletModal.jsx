@@ -117,7 +117,7 @@ function WalletModal() {
   return (
     <div className="">
       <div className="bg-[#061111B8] fixed w-full h-fit min-h-[100vh] top-0 left-0 backdrop-blur-[4px] z-50"></div>
-      <div className="bg-[#152F30] w-full max-w-[464px] sm:w-[464px] h-[564px] p-4 absolute top-8 left-1/2 -translate-x-1/2 z-50 rounded-lg">
+      <div className="bg-[#152F30] w-full max-w-[464px] sm:w-[464px] min-h-[564px] p-4 absolute top-8 left-1/2 -translate-x-1/2 z-50 rounded-lg">
         <header className="flex items-center mb-6">
           <h3 className="ml-auto">Connect to a wallet</h3>
           <div
