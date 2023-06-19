@@ -1,46 +1,13 @@
 import React, { useEffect, useState } from 'react';
 import { AiOutlineDown, AiOutlineUp } from 'react-icons/ai';
-import { ethers } from 'ethers';
-import Web3Modal from 'web3modal';
-import {
-  Token,
-  Route,
-  Trade,
-  TokenAmount,
-  TradeType,
-  Fetcher,
-} from '@uniswap/sdk';
 import diamond from '../../../images/ashdiamond.png';
 import green from '../../../images/greenpool.png';
 import path from '../../../images/pathIcon.png';
 import { useDispatch } from 'react-redux';
 import { showCreateAPair, showRemoveLiquidity } from '../../Features/PoolSlice';
-import { TOKENA, TOKENB, currentNetwork, routerABI } from '../../../contracts';
-// Uniswap Router contract ABI
 
-const ROUTER_ADDRESS = '0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D'; // Uniswap Router address
-
-function LiquidityMain() {
+function LiquidityMain({ addLiquidity }) {
   const dispatch = useDispatch();
-
-  const [provider, setProvider] = useState(null);
-  const [account, setAccount] = useState(null);
-  const [contract, setContract] = useState(null);
-
-  useEffect(() => {
-    (async function () {
-      const web3Modal = new Web3Modal();
-      const connection = await web3Modal.connect();
-      const provider = new ethers.providers.Web3Provider(connection);
-      const signer = provider.getSigner();
-      const contract = new ethers.Contract(ROUTER_ADDRESS, routerABI, signer);
-      setProvider(provider);
-      setContract(contract);
-      setAccount(await signer.getAddress());
-    })();
-  }, []);
-
-  // ...rest of your component
 
   const [pools, setPools] = useState([
     { name: 'ETH/APY', id: 1, img: diamond, liquidity: false },
@@ -54,51 +21,7 @@ function LiquidityMain() {
       )
     );
   }
-
-  const addLiquidity = async () => {
-    if (!provider || !contract) {
-      return;
-    }
-
-    const tokenA = new Token(
-      currentNetwork.chainId,
-      TOKENA,
-      18,
-      'TOKEN1',
-      'Token One'
-    );
-    const tokenB = new Token(
-      currentNetwork.chainId,
-      TOKENB,
-      18,
-      'TOKEN2',
-      'Token Two'
-    );
-    const amountADesired = ethers.utils.parseUnits('0.01', tokenA.decimals); //0.01 ETH // replace with actual amount
-    const amountBDesired = ethers.utils.parseUnits('100', tokenB.decimals); //100 TOKEN B // replace with actual amount
-    const amountAMin = ethers.utils.parseUnits('0.009', tokenA.decimals); // replace with actual amount
-    const amountBMin = ethers.utils.parseUnits('99', tokenB.decimals); // replace with actual amount
-    const deadline = Math.floor(Date.now() / 1000) + 60 * 20; // 20 minutes from the current Unix time
-
-    try {
-      const tx = await contract.addLiquidity(
-        tokenA.address,
-        tokenB.address,
-        amountADesired,
-        amountBDesired,
-        amountAMin,
-        amountBMin,
-        account,
-        deadline
-      );
-      await tx.wait();
-    } catch (error) {
-      console.error('Failed to add liquidity', error);
-    }
-  };
-
   return (
-    // ...your component JSX
     <section className="w-full max-w-[586px] sm:w-[586px] mx-auto px-3 sm:px-0">
       <h5 className="mb-5">Liquidity provider rewards</h5>
       <p className="text-[#DCDCDC] mb-6">

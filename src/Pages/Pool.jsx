@@ -6,9 +6,17 @@ import CreateAPair from '../components/Pool/CreateAPair';
 import ImportTokenModal from '../components/Pool/ImportTokenModal';
 import Liquidity from '../components/Pool/Liquidity';
 import PoolTokenModal from '../components/Pool/PoolTokenModal';
-
+import {
+  useAccount,
+  useContractRead,
+  useContractWrite,
+  usePrepareContractWrite,
+  useWaitForTransaction,
+} from 'wagmi';
 function Pool() {
-  const {transactionSettingsModal} = useSelector((store) => store.modal);
+
+  const { address, isConnected } = useAccount();
+  const { transactionSettingsModal } = useSelector((store) => store.modal);
   const { displayPoolTokenModal, displayCreateAPair, displayImportTokenFirstInput } = useSelector(
     (store) => store.poolFunc
   );

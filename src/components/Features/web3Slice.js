@@ -1,10 +1,10 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { arbitrumGoerli } from 'viem/chains';
 import Web3Modal from 'web3modal';
-import { currentNetwork } from '../../contracts';
 
 const initialState = {
   web3Modal: new Web3Modal({
-    network: currentNetwork.name,
+    network: arbitrumGoerli.name,
     providerOptions: {},
     disableInjectedProvider: false,
     cacheProvider: true,
