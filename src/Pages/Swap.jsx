@@ -4,7 +4,7 @@ import {
   AiOutlineDown,
   AiOutlineSetting,
   AiOutlineQuestionCircle,
-  AiOutlineLeft,
+  AiOutlineLeft
 } from 'react-icons/ai';
 import { BsArrowDownUp } from 'react-icons/bs';
 import AltNav from '../components/AltNav';
@@ -16,7 +16,8 @@ import {
   displaySwapETHforToken,
   displayTokenModal,
   displayTokenModalSwapFrom,
-  showTransactionSettingsModal,
+  displayTransactionSubmitted,
+  showTransactionSettingsModal
 } from '../components/Features/ModalSlice';
 import TokenModal from '../components/Modal/TokenModal';
 import ImportTokenModal from '../components/Modal/ImportTokenModal';
@@ -27,28 +28,30 @@ import TokenModalSwapFrom from '../components/Modal/TokenModalSwapFrom';
 import ImportTokenModalForSwapFrom from '../components/Modal/ImportTokenModalForSwapFrom';
 import cex from '../images/cex.png';
 import { ethers } from 'ethers';
+import { toast } from 'react-toastify';
 import {
   Factory,
-  TokenA,
-  TokenD,
   UniV2Router,
   erc20ABI,
   factoryABI,
-  routerABI,
+  routerABI
 } from '../contracts';
 import Web3Modal from 'web3modal';
 import { useAccount } from 'wagmi';
 import {
   approveTokens,
   createPair,
-  getEstimatedTokensOut,
+  getEstimatedTokensOut
 } from '../utils/helpers';
+import { ChainId, Token, WETH, Fetcher } from '@uniswap/sdk';
+
 import TransactionSumbmitted from '../components/Modal/TransactionSumbmitted';
-
-
+import { arbitrumGoerli } from 'viem/chains';
+import { setSigner } from '../components/Features/web3Slice';
+import { switchDefaultSwap } from '../components/Features/TokenSlice';
 
 function Swap() {
-  const current = 'swap'
+  const current = 'swap';
   const {
     transactionSettingsModal,
     tokenModal,
@@ -56,66 +59,125 @@ function Swap() {
     manageModal,
     swapETHModal,
     transactionSubmitModal
-  } = useSelector((store) => store.modal);
-
+  } = useSelector(store => store.modal);
 
   const {
     displayImportToken,
     defaultTokenSwapFrom,
     defaultTokenSwapTo,
     displayImportTokenSwapFrom
-  } = useSelector((store) => store.token);
+  } = useSelector(store => store.token);
 
   const dispatch = useDispatch();
 
   const [swapInputs, setSwapInputs] = useState({
     from: {
       value: '',
-      address: TokenD.address,
-      symbol: TokenD.symbol,
-      decimals: TokenD.decimals,
-      balance: 0,
+      address: defaultTokenSwapFrom.token,
+      symbol: defaultTokenSwapFrom.symbol,
+      decimals: defaultTokenSwapFrom.decimals,
+      balance: defaultTokenSwapFrom.balance
     },
     to: {
       value: '',
-      address: TokenA.address,
-      symbol: TokenA.symbol,
-      decimals: TokenA.decimals,
-      balance: 0,
-    },
+      address: defaultTokenSwapTo.token,
+      symbol: defaultTokenSwapTo.symbol,
+      decimals: defaultTokenSwapTo.decimals,
+      balance: defaultTokenSwapTo.balance
+    }
   });
-
+  const [swapPrice, setSwapPrice] = useState(0);
+  useEffect(() => {
+    setSwapInputs(prevValue => {
+      return {
+        ...prevValue,
+        from: {
+          ...prevValue.from,
+          address: defaultTokenSwapFrom.token,
+          symbol: defaultTokenSwapFrom.symbol,
+          decimals: defaultTokenSwapFrom.decimals,
+          balance: defaultTokenSwapFrom.balance
+        },
+        to: {
+          ...prevValue.to,
+          address: defaultTokenSwapTo.token,
+          symbol: defaultTokenSwapTo.symbol,
+          decimals: defaultTokenSwapTo.decimals,
+          balance: defaultTokenSwapTo.balance
+        }
+      };
+    });
+    console.log('changine');
+  }, [defaultTokenSwapFrom, defaultTokenSwapTo]);
   async function fillSwapInputs(e) {
     const { name, value } = e.target;
     let oppositeInput = name === 'from' ? 'to' : 'from';
-
-    setSwapInputs((prevValue) => {
+    if (!defaultTokenSwapFrom.token || !defaultTokenSwapTo.token) {
+      return toast.error('Select the Token First');
+    }
+    setSwapInputs(prevValue => {
       return {
         ...prevValue,
-        [name]: { ...prevValue[name], value },
+        [name]: { ...prevValue[name], value }
       };
     });
+    if (!value || !Number(value)) return;
 
     if (name === 'from') {
       const amountOut = await getEstimatedTokensOut({
         routerContract,
         amountIn: value,
         TokenIn: swapInputs.from,
-        TokenOut: swapInputs.to,
+        TokenOut: swapInputs.to
       });
 
-      setSwapInputs((prevValue) => {
+      setSwapInputs(prevValue => {
         return {
           ...prevValue,
-          [oppositeInput]: { ...prevValue[oppositeInput], value: amountOut },
+          [oppositeInput]: { ...prevValue[oppositeInput], value: amountOut }
+        };
+      });
+    } else if (name === 'to') {
+      const amountOut = await getEstimatedTokensOut({
+        routerContract,
+        amountIn: value,
+        TokenIn: swapInputs.to,
+        TokenOut: swapInputs.from
+      });
+
+      setSwapInputs(prevValue => {
+        return {
+          ...prevValue,
+          [oppositeInput]: { ...prevValue[oppositeInput], value: amountOut }
         };
       });
     }
+    const amountPerTokenOut = await getEstimatedTokensOut({
+      routerContract,
+      amountIn: '1',
+      TokenIn: swapInputs.to,
+      TokenOut: swapInputs.from
+    });
+    console.log({ amountPerTokenOut });
+    setSwapPrice(amountPerTokenOut);
   }
 
   function clearSwapInputFrom() {
-    setSwapInputs((prevValue) => {
-      return { ...prevValue, from: '' };
+    setSwapInputs(prevValue => {
+      return {
+        ...prevValue,
+        from: { ...prevValue.from, value: '' },
+        to: { ...prevValue.to, value: '' }
+      };
+    });
+  }
+  function clearSwapInput() {
+    setSwapInputs(prevValue => {
+      return {
+        ...prevValue,
+        from: { ...prevValue.from, value: '' },
+        to: { ...prevValue.to, value: '' }
+      };
     });
   }
 
@@ -130,42 +192,39 @@ function Swap() {
   const [confirmSwapInfoBoxes, setConfirmSwapInfoBoxes] = useState({
     displayMinimumReceivedInfo: false,
     displayPriceImpactInfo: false,
-    displayLiquidityInfo: false,
+    displayLiquidityInfo: false
   });
 
-  
-
   function toggleMinimum() {
-    setConfirmSwapInfoBoxes((prevValue) => {
+    setConfirmSwapInfoBoxes(prevValue => {
       return {
         displayMinimumReceivedInfo: !prevValue.displayMinimumReceivedInfo,
         displayPriceImpactInfo: false,
-        displayLiquidityInfo: false,
+        displayLiquidityInfo: false
       };
     });
   }
 
   function togglePriceImpact() {
-    setConfirmSwapInfoBoxes((prevValue) => {
+    setConfirmSwapInfoBoxes(prevValue => {
       return {
         displayMinimumReceivedInfo: false,
         displayPriceImpactInfo: !prevValue.displayPriceImpactInfo,
-        displayLiquidityInfo: false,
+        displayLiquidityInfo: false
       };
     });
   }
 
   function toggleLiquidity() {
-    setConfirmSwapInfoBoxes((prevValue) => {
+    setConfirmSwapInfoBoxes(prevValue => {
       return {
         displayMinimumReceivedInfo: false,
         displayPriceImpactInfo: false,
-        displayLiquidityInfo: !prevValue.displayLiquidityInfo,
+        displayLiquidityInfo: !prevValue.displayLiquidityInfo
       };
     });
   }
-  const [signer, setSigner] = useState(null);
-
+  const { signer } = useSelector(state => state.web3);
   const { address, isConnected } = useAccount();
   const [routerContract, setRouterContract] = useState(null);
   const [factoryContract, setFactoryContract] = useState(null);
@@ -180,61 +239,70 @@ function Swap() {
       return;
     }
     const web3Modal = new Web3Modal();
-    web3Modal.connect().then(async (provider) => {
+    web3Modal.connect().then(async provider => {
       const web3Provider = new ethers.providers.Web3Provider(provider);
       const signer = web3Provider.getSigner();
-      setSigner(signer);
+      dispatch(setSigner(signer));
       const fContract = new ethers.Contract(Factory, factoryABI, signer);
       const rContract = new ethers.Contract(UniV2Router, routerABI, signer);
 
       setRouterContract(rContract);
       setFactoryContract(fContract);
-      const tokenAContract = new ethers.Contract(
-        swapInputs.from.address,
-        erc20ABI,
-        signer
-      );
-      const tokenBContract = new ethers.Contract(
-        swapInputs.to.address,
-        erc20ABI,
-        signer
-      );
-      setTokenAContract(tokenAContract);
-      setTokenBContract(tokenBContract);
+      if (defaultTokenSwapFrom.token && defaultTokenSwapTo.token) {
+        const tokenAContract = new ethers.Contract(
+          swapInputs.from.address,
+          erc20ABI,
+          signer
+        );
+        const tokenBContract = new ethers.Contract(
+          swapInputs.to.address,
+          erc20ABI,
+          signer
+        );
+        setTokenAContract(tokenAContract);
+        setTokenBContract(tokenBContract);
 
-      const balanceAToken = await tokenAContract.balanceOf(address);
-      const balanceBToken = await tokenBContract.balanceOf(address);
-      const tokenABalance = ethers.utils.formatUnits(
-        balanceAToken,
-        swapInputs.from.decimals
-      );
+        const balanceAToken = await tokenAContract.balanceOf(address);
+        const balanceBToken = await tokenBContract.balanceOf(address);
+        const tokenABalance = ethers.utils.formatUnits(
+          balanceAToken,
+          swapInputs.from.decimals
+        );
 
-      const tokenBBalance = ethers.utils.formatUnits(
-        balanceBToken,
-        swapInputs.to.decimals
-      );
+        const tokenBBalance = ethers.utils.formatUnits(
+          balanceBToken,
+          swapInputs.to.decimals
+        );
 
-      setSwapInputs((prevValue) => {
-        return {
-          ...prevValue,
-          from: { ...prevValue.from, balance: tokenABalance },
-          to: { ...prevValue.to, balance: tokenBBalance },
-        };
-      });
+        setSwapInputs(prevValue => {
+          return {
+            ...prevValue,
+            from: { ...prevValue.from, balance: tokenABalance },
+            to: { ...prevValue.to, balance: tokenBBalance }
+          };
+        });
 
-      const PairAddress = await createPair({
-        factoryContract: fContract,
-        TokenA: TokenA,
-        TokenB: TokenD,
-      });
-      // console.log(PairAddress);
-      const amountOut = await getEstimatedTokensOut({
-        routerContract: rContract,
-        amountIn: `${amountIn}`,
-        TokenIn: TokenD,
-        TokenOut: TokenA,
-      });
-      setAmountOut(amountOut);
+        const PairAddress = await createPair({
+          factoryContract: fContract,
+          TokenA: swapInputs.from,
+          TokenB: swapInputs.to
+        });
+        const DAI = await Fetcher.fetchTokenData(
+          arbitrumGoerli.id,
+          swapInputs.from.address,
+          signer
+        );
+        console.log(DAI);
+        // console.log(PairAddress);
+        const amountOut = await getEstimatedTokensOut({
+          routerContract: rContract,
+          amountIn: `${amountIn}`,
+          TokenIn: swapInputs.from,
+          TokenOut: swapInputs.to
+        });
+        setAmountOut(amountOut);
+        // ???
+      }
     });
   }, [address, amountIn, isConnected]);
   const swapExactTokensForTokens = async () => {
@@ -244,23 +312,23 @@ function Swap() {
         signer,
         TokenA: swapInputs.from,
         TokenB: swapInputs.to,
-        amountA: amountIn,
-        amountB: amountOut,
+        amountA: swapInputs.from.value,
+        amountB: swapInputs.to.value
       });
-      const path = [TokenD.address, TokenA.address];
+      const path = [swapInputs.from.address, swapInputs.to.address];
       const to = address;
       const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
-      const amountOutMin = (Number(amountOut) * 0.9).toFixed(
+      const amountOutMin = (Number(swapInputs.to.value) * 0.9).toFixed(
         swapInputs.to.decimals
       );
       console.log(amountOutMin);
 
       const tx = await routerContract.swapExactTokensForTokens(
-        ethers.utils.parseUnits(amountIn.toString(), swapInputs.from.decimals),
         ethers.utils.parseUnits(
-          amountOutMin.toString(),
-          swapInputs.to.decimals
+          swapInputs.from.value,
+          swapInputs.from.decimals
         ),
+        ethers.utils.parseUnits(amountOutMin, swapInputs.to.decimals),
         path,
         to,
         deadline,
@@ -283,13 +351,14 @@ function Swap() {
         swapInputs.to.decimals
       );
 
-      setSwapInputs((prevValue) => {
+      setSwapInputs(prevValue => {
         return {
           ...prevValue,
           from: { ...prevValue.from, value: '', balance: tokenABalance },
-          to: { ...prevValue.to, value: '', balance: tokenBBalance },
+          to: { ...prevValue.to, value: '', balance: tokenBBalance }
         };
       });
+      dispatch(displayTransactionSubmitted());
     } catch (err) {
       setIsLoading(false);
       console.log(err);
@@ -298,7 +367,7 @@ function Swap() {
 
   return (
     <div className="text-white bg-[#0E1E1F] min-h-screen relative px-3">
-      <AltNav current={current}/>
+      <AltNav current={current} />
 
       {transactionSettingsModal && <SettingsModal />}
       {tokenModalSwapFrom && <TokenModalSwapFrom />}
@@ -306,7 +375,13 @@ function Swap() {
       {displayImportToken && <ImportTokenModal />}
       {displayImportTokenSwapFrom && <ImportTokenModalForSwapFrom />}
       {manageModal && <ManageModal />}
-      {swapETHModal && <SwapETHforToken swapInputs={swapInputs.from} />}
+      {swapETHModal && (
+        <SwapETHforToken
+          swapInputs={swapInputs.from.value}
+          swapExactTokensForTokens={swapExactTokensForTokens}
+          isLoading={isLoading}
+        />
+      )}
       {transactionSubmitModal && <TransactionSumbmitted />}
 
       {/* all of the modals for the swap page are contained above and below is the conditional rendering of the swap and confirm swap */}
@@ -346,13 +421,26 @@ function Swap() {
                   >
                     <AiOutlineClose />
                   </i>
-                  <div className="flex items-center cursor-pointer" onClick={() => dispatch(displayTokenModalSwapFrom())}>
+                  <div
+                    className="flex items-center cursor-pointer"
+                    onClick={() =>
+                      signer && dispatch(displayTokenModalSwapFrom())
+                    }
+                  >
                     <img
-                      src={defaultTokenSwapFrom.logo ? defaultTokenSwapFrom.logo : blackDiamond}
+                      src={
+                        defaultTokenSwapFrom.logo
+                          ? defaultTokenSwapFrom.logo
+                          : blackDiamond
+                      }
                       alt="black-diamond"
                       className="w-[40px] h-[40px]"
                     />
-                    <span className="text-[18px] ml-2">{defaultTokenSwapFrom.shortName ? defaultTokenSwapFrom.shortName : 'ETH'}</span>
+                    <span className="text-[18px] ml-2">
+                      {defaultTokenSwapFrom.symbol
+                        ? defaultTokenSwapFrom.symbol
+                        : 'ETH'}
+                    </span>
                     <i className="ml-2">
                       <AiOutlineDown />
                     </i>
@@ -362,7 +450,13 @@ function Swap() {
               </div>
 
               <div className="bg-white h-[2px] my-7 flex items-center justify-end">
-                <button className="bg-[#1B595B] w-[40px] h-[40px] rounded-full flex items-center justify-center cursor-pointer">
+                <button
+                  className="bg-[#1B595B] w-[40px] h-[40px] rounded-full flex items-center justify-center cursor-pointer"
+                  // interchanging the tokens
+                  onClick={() =>
+                    dispatch(switchDefaultSwap()) && clearSwapInput()
+                  }
+                >
                   <BsArrowDownUp />
                 </button>
               </div>
@@ -380,19 +474,21 @@ function Swap() {
                     className="w-[50%] sm:w-[230px] pr-2 bg-[#152F30] outline-none text-[20px] sm:text-[34px]"
                   />
                   {defaultTokenSwapTo.tokenName ? (
-                    
-                    <div className="flex items-center h-[48px] justify-center cursor-pointer"
-                    onClick={() => dispatch(displayTokenModal())}>
-                    <img src={defaultTokenSwapTo.logo} alt="dash" />
-                    <span className="ml-2">{defaultTokenSwapTo.shortName} </span>
-                    <i className="ml-2 text-white">
-                      <AiOutlineDown />
-                    </i>
-                  </div>
+                    <div
+                      className="flex items-center h-[48px] justify-center cursor-pointer"
+                      onClick={() => dispatch(displayTokenModal())}
+                    >
+                      <img src={defaultTokenSwapTo.logo} alt="dash" />
+                      <span className="ml-2">{defaultTokenSwapTo.symbol} </span>
+                      <i className="ml-2 text-white">
+                        <AiOutlineDown />
+                      </i>
+                    </div>
                   ) : (
                     <button
                       className="flex items-center text-[#011718] bg-[#69CED1] w-[170px] h-[48px] justify-center rounded-[100px] hover:opacity-70 cursor-pointer"
-                      onClick={() => dispatch(displayTokenModal())}
+                      onClick={() => signer && dispatch(displayTokenModal())}
+                      disabled={!signer}
                     >
                       Select a Token{' '}
                       <i className="ml-2 text-white">
@@ -405,16 +501,15 @@ function Swap() {
               </div>
             </div>
 
-
-            {swapInputs.to * 1 && swapInputs.from * 1 && defaultTokenSwapTo.tokenName ? (
+            {swapInputs.to.value && swapInputs.from.value ? (
               <button
                 className={` h-[48px] w-full max-w-[384px] sm:w-[384px]  block m-auto mt-7 rounded-[100px] ${
                   isLoading
                     ? 'bg-[#1C3738] text-[#69CED1]'
                     : 'bg-[#69CED1] text-[#011718]'
                 }`}
-                // onClick={displayConfirmSwap}
-                onClick={swapExactTokensForTokens}
+                onClick={displayConfirmSwap}
+                // onClick={swapExactTokensForTokens}
                 disabled={isLoading}
               >
                 Swap
@@ -425,7 +520,7 @@ function Swap() {
               </button>
             )}
           </section>
-          {swapInputs.to * 1 && swapInputs.from * 1 && defaultTokenSwapTo.tokenName ? (
+          {swapInputs.to.value && swapInputs.from.value ? (
             <div className="text-[#DCDCDC] w-full max-w-[464px] sm:w-[464px] px-3 sm:px-[24px] m-auto mt-5">
               <p className="flex items-center justify-between mb-3">
                 <span className="flex items-center relative">
@@ -440,7 +535,9 @@ function Swap() {
                     </span>
                   )}
                 </span>
-                <span>{swapInputs.to} 1INCH</span>
+                <span>
+                  {swapInputs.to.value} {swapInputs.to.symbol}
+                </span>
               </p>
               <p className="flex items-center justify-between mb-3">
                 <span className="flex items-center relative">
@@ -504,16 +601,22 @@ function Swap() {
               <h3 className="">Swap from</h3>
               <div className="flex justify-between relative">
                 <p className="w-fit sm:w-[230px] bg-[#152F30] outline-none text-[20px] sm:text-[34px]">
-                  {swapInputs.from}
+                  {swapInputs.from.value}
                 </p>
                 <div className="flex items-center cursor-pointer">
                   <img
-                    src={defaultTokenSwapFrom.logo ? defaultTokenSwapFrom.logo : blackDiamond}
+                    src={
+                      defaultTokenSwapFrom.logo
+                        ? defaultTokenSwapFrom.logo
+                        : blackDiamond
+                    }
                     alt="black-diamond"
                     className="w-[40px] h-[40px]"
                   />
                   <span className="text-[18px] ml-2">
-                  {defaultTokenSwapFrom.shortName ? defaultTokenSwapFrom.shortName : 'ETH'}
+                    {defaultTokenSwapFrom.symbol
+                      ? defaultTokenSwapFrom.symbol
+                      : 'ETH'}
                   </span>
                 </div>
               </div>
@@ -524,11 +627,13 @@ function Swap() {
             <h3>Swap to</h3>
             <div className="flex justify-between">
               <p className="w-[50%] sm:w-[230px] pr-2 bg-[#152F30] outline-none text-[20px] sm:text-[34px]">
-                {swapInputs.to}
+                {Number.isInteger(Number(swapInputs.to.value))
+                  ? Number(swapInputs.to.value).toExponential(6)
+                  : Number(swapInputs.to.value).toFixed(4)}
               </p>
               <div className="flex items-center h-[48px] justify-center cursor-pointer">
                 <img src={defaultTokenSwapTo.logo} alt="dash" />
-                <span className="ml-2">{defaultTokenSwapTo.shortName}</span>
+                <span className="ml-2">{defaultTokenSwapTo.symbol}</span>
                 <i className="ml-2 text-white">
                   <AiOutlineDown />
                 </i>
@@ -544,7 +649,10 @@ function Swap() {
           <div className="text-[#DCDCDC]">
             <p className="flex items-center justify-between mb-3">
               <span className="flex items-center relative">Price</span>
-              <span>0.0021672 ETH per 1INCH</span>
+              <span>
+                {Number(swapPrice).toFixed(6)} {swapInputs.from.symbol} per 1
+                {swapInputs.to.symbol}
+              </span>
             </p>
             <p className="flex items-center justify-between mb-3">
               <span className="flex items-center relative">
@@ -559,7 +667,9 @@ function Swap() {
                   </span>
                 )}
               </span>
-              <span>{swapInputs.to} 1INCH</span>
+              <span>
+                {Number(swapInputs.to.value).toFixed(6)} {swapInputs.to.symbol}
+              </span>
             </p>
             <p className="flex items-center justify-between mb-3">
               <span className="flex items-center relative">

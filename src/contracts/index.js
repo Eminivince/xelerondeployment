@@ -12,12 +12,6 @@ const TokenA = {
   address: '0x1757f2E7BEE5abE1A79532000d05e32D90dD79fF',
   decimals: 18,
 };
-const TokenB = {
-  name: 'NewTokenA',
-  decimals: 0,
-  symbol: 'NTA',
-  address: '0x9A8D77e9f4617cb25Afc4Aa988B6694e900f2081',
-};
 const TokenC = {
   name: 'Xeleron',
   decimals: 18,
@@ -39,7 +33,6 @@ export {
   Factory,
   Pair,
   TokenA,
-  TokenB,
   TokenC,
   TokenD,
   UniV2Router,

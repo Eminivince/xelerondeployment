@@ -17,12 +17,13 @@ export const store = configureStore({
     swapFunc: swapFuncReducer,
     web3: web3Reducer,
     poolFunc: PoolReducer,
-    ellAssetFunc: ELLAssetReducer
+    ellAssetFunc: ELLAssetReducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredPaths: ['web3.web3Modal'],
+        ignoredPaths: ['web3.signer'],
+        ignoredActions: ['web3/setSigner'],
       },
     }),
 });

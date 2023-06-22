@@ -16,6 +16,7 @@ const { chains, publicClient } = configureChains(
 const { connectors } = getDefaultWallets({
   appName: 'Xeleron',
   chains,
+  projectId: '64d6d7fac93b61c9c5b14a5c1354c397',
 });
 
 const wagmiConfig = createConfig({
