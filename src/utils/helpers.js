@@ -76,11 +76,11 @@ const approveTokens = async ({
       TokenB.decimals
     ); // Replace with desired amounts
     const tokenABalanceBigNumber = ethers.utils.parseUnits(
-      TokenA.balance,
+      `${TokenA.balance}`,
       TokenA.decimals
     );
     const tokenBBalanceBigNumber = ethers.utils.parseUnits(
-      TokenB.balance,
+      `${TokenB.balance}`,
       TokenB.decimals
     );
 
