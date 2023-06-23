@@ -7,6 +7,7 @@ import Connect from './Pages/Connect';
 import SelectAccount from './Pages/SelectAccount';
 import Pool from './Pages/Pool';
 import ConnectToELLAsset from './Pages/ConnectToELLAsset';
+import Launchpad from './Pages/Launchpad';
 function App() {
   return (
     <BrowserRouter>
@@ -17,6 +18,7 @@ function App() {
         <Route path="/account" element={<SelectAccount />} />
         <Route path="/pool" element={<Pool />} />
         <Route path="/ELLAsset" element={<ConnectToELLAsset />} />
+        <Route path='Launchpad' element={<Launchpad />} />
       </Routes>
     </BrowserRouter>
   );

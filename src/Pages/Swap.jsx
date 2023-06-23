@@ -559,7 +559,7 @@ function Swap() {
               </p>
               <p className="flex items-center justify-between mb-3">
                 <span className="flex items-center relative">
-                  Liquidity Provider Free{' '}
+                  Liquidity Provider Fee{' '}
                   <i className="cursor-pointer ml-2" onClick={toggleLiquidity}>
                     <AiOutlineQuestionCircle />
                   </i>
