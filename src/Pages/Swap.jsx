@@ -122,7 +122,7 @@ function Swap() {
       };
     });
     if (!value || !Number(value)) return;
-
+    setFetchingPrice(true);
     if (name === 'from') {
       const amountOut = await getEstimatedTokensOut({
         routerContract,
@@ -174,8 +174,8 @@ function Swap() {
       TokenOut: swapInputs.from,
     });
 
-    console.log({ amountPerTokenOut });
     setSwapPrice(amountPerTokenOut);
+    setFetchingPrice(false);
   }
 
   function clearSwapInputFrom() {
@@ -249,7 +249,7 @@ function Swap() {
   const [isLoading, setIsLoading] = useState(false);
   const [amountInMin, setAmountInMin] = useState(0);
   const [amountOutMin, setAmountOutMin] = useState(0);
-
+  const [fetchingPrice, setFetchingPrice] = useState(false);
   useEffect(() => {
     if (!isConnected) {
       alert('Please connect your wallet');
@@ -310,19 +310,18 @@ function Swap() {
   const swapExactTokensForTokens = async () => {
     try {
       setIsLoading(true);
-      dispatch(displayTransactionSubmitted());
-      return;
+
       await approveTokens({
         signer,
         TokenA: swapInputs.from,
         TokenB: swapInputs.to,
-        amountA: swapInputs.from.value,
-        amountB: swapInputs.to.value,
+        amountA: `${swapInputs.from.value}`,
+        amountB: `${swapInputs.to.value}`,
       });
       const path = [swapInputs.from.address, swapInputs.to.address];
       const to = address;
       const deadline = Math.floor(Date.now() / 1000) + 60 * 20;
-      const amountOutMin = (Number(swapInputs.to.value) * 0.9).toFixed(
+      const amountOutMin = (Number(swapInputs.to.value) * 0.997).toFixed(
         swapInputs.to.decimals
       );
       // console.log(amountOutMin);
@@ -386,7 +385,13 @@ function Swap() {
           isLoading={isLoading}
         />
       )}
-      {transactionSubmitModal && <TransactionSumbmitted />}
+      {transactionSubmitModal && (
+        <TransactionSumbmitted
+          swapInputs={swapInputs}
+          returnToSwap={returnToSwap}
+          clearSwapInput={clearSwapInput}
+        />
+      )}
 
       {/* all of the modals for the swap page are contained above and below is the conditional rendering of the swap and confirm swap */}
       {!confirmSwap ? (
@@ -505,7 +510,13 @@ function Swap() {
               </div>
             </div>
 
-            {swapInputs.to.value && swapInputs.from.value ? (
+            {fetchingPrice ? (
+              <button
+                className={` h-[48px] w-full max-w-[384px] sm:w-[384px]  block m-auto mt-7 rounded-[100px] bg-[#69CED1] text-[#011718]`}
+              >
+                Fetching Price...
+              </button>
+            ) : swapInputs.to.value && swapInputs.from.value ? (
               <button
                 className={` h-[48px] w-full max-w-[384px] sm:w-[384px]  block m-auto mt-7 rounded-[100px] ${
                   isLoading
@@ -716,7 +727,8 @@ function Swap() {
 
           <button
             className="text-[#011718] h-[48px] w-full max-w-[384px] sm:w-[384px] bg-[#69CED1] block m-auto mt-7 rounded-[100px]"
-            onClick={() => swapExactTokensForTokens()}
+            onClick={() => !isLoading && swapExactTokensForTokens()}
+            disabled={isLoading}
           >
             Confirm Swap
           </button>

@@ -8,8 +8,15 @@ import {
   hideTransactionSubmitted,
 } from '../Features/ModalSlice';
 
-function TransactionSumbmitted() {
+function TransactionSumbmitted({ swapInputs, returnToSwap, clearSwapInput }) {
   const dispatch = useDispatch();
+  function closeModal() {
+    dispatch(hideTransactionSubmitted());
+    dispatch(hideSwapETHforToken());
+    dispatch(hideManageModal());
+    returnToSwap();
+    clearSwapInput();
+  }
   return (
     <div>
       <div className="bg-[#061111B8] fixed w-full h-[100vh] min-h-[100vh] top-0 left-0 backdrop-blur-[4px] z-50"></div>
@@ -17,11 +24,7 @@ function TransactionSumbmitted() {
         <div className="mb-[60px]">
           <i
             className="ml-auto block w-fit cursor-pointer"
-            onClick={() =>
-              dispatch(hideTransactionSubmitted()) &&
-              dispatch(hideSwapETHforToken()) &&
-              dispatch(hideManageModal())
-            }
+            onClick={closeModal}
           >
             <AiOutlineClose />
           </i>
@@ -32,7 +35,10 @@ function TransactionSumbmitted() {
           className="w-[92.22px] h-[91.67px] mx-auto mb-9"
         />
         <p className="text-center mb-4">Transaction Submitted</p>
-        <p className="text-center">Swapping 0.22ETH for 9.741INCH</p>
+        <p className="text-center">
+          Swapping {swapInputs.from.value + ' '} {swapInputs.from.symbol + ' '}
+          for {swapInputs.to.value + ' '} {swapInputs.to.symbol + ' '}
+        </p>
         <button className="bg-[#1B595B] text-[#69CED1] w-[95%] block mx-auto h-[48px] rounded-[100px] mt-12">
           View on Etherscon
         </button>
