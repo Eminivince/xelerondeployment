@@ -50,7 +50,7 @@ function CreateAPair() {
           >
             <AiOutlineLeft />
           </i>
-          <h3 className="">Create a pair</h3>
+          <h3 className="">Add Liquidity</h3>
           <div
             className="cursor-pointer"
             onClick={() => dispatch(showTransactionSettingsModal())}

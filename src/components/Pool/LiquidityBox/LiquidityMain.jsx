@@ -36,14 +36,9 @@ function LiquidityMain({ addLiquidity }) {
       <div className="flex items-center justify-between mt-9">
         <p className="text-[12px] sm:text-[16px]">Your Liquidity</p>
         <div className="flex items-center text-[12px] sm:text-[16px]">
+          
           <button
-            className="text-[#69CED1] sm:w-[127px] h-[36px] sm:h-[48px] bg-[#1B595B] px-2 rounded-[20px] sm:rounded-[100px] hover:brightness-125"
             onClick={() => dispatch(showCreateAPair())}
-          >
-            Create a Pair
-          </button>
-          <button
-            onClick={addLiquidity}
             className="text-[#011718] bg-[#69CED1] sm:w-[127px] h-[36px] sm:h-[48px] px-2 rounded-[20px] sm:rounded-[100px] ml-2 hover:brightness-75"
           >
             Add Liquidity

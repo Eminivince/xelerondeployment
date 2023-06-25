@@ -18,7 +18,7 @@ function App() {
         <Route path="/account" element={<SelectAccount />} />
         <Route path="/pool" element={<Pool />} />
         <Route path="/ELLAsset" element={<ConnectToELLAsset />} />
-        <Route path='Launchpad' element={<Launchpad />} />
+        <Route path='launchpad' element={<Launchpad />} />
       </Routes>
     </BrowserRouter>
   );
