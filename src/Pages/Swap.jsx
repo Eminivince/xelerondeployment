@@ -49,6 +49,7 @@ import TransactionSumbmitted from '../components/Modal/TransactionSumbmitted';
 import { arbitrumGoerli } from 'viem/chains';
 import { setSigner } from '../components/Features/web3Slice';
 import { switchDefaultSwap } from '../components/Features/TokenSlice';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
 
 function Swap() {
   const current = 'swap';
@@ -250,9 +251,15 @@ function Swap() {
   const [amountInMin, setAmountInMin] = useState(0);
   const [amountOutMin, setAmountOutMin] = useState(0);
   const [fetchingPrice, setFetchingPrice] = useState(false);
+
+  const { openConnectModal } = useConnectModal();
+  function checkIsConnected() {
+    if (!isConnected) {
+      openConnectModal();
+    }
+  }
   useEffect(() => {
     if (!isConnected) {
-      alert('Please connect your wallet');
       return;
     }
     const web3Modal = new Web3Modal();
@@ -433,7 +440,9 @@ function Swap() {
                   <div
                     className="flex items-center cursor-pointer"
                     onClick={() =>
-                      signer && dispatch(displayTokenModalSwapFrom())
+                      !signer
+                        ? checkIsConnected()
+                        : dispatch(displayTokenModalSwapFrom())
                     }
                   >
                     <img
@@ -496,8 +505,11 @@ function Swap() {
                   ) : (
                     <button
                       className="flex items-center text-[#011718] bg-[#69CED1] w-[170px] h-[48px] justify-center rounded-[100px] hover:opacity-70 cursor-pointer"
-                      onClick={() => signer && dispatch(displayTokenModal())}
-                      disabled={!signer}
+                      onClick={() => {
+                        console.log({ signer });
+                        if (!signer) checkIsConnected();
+                        else dispatch(displayTokenModal());
+                      }}
                     >
                       Select a Token{' '}
                       <i className="ml-2 text-white">
