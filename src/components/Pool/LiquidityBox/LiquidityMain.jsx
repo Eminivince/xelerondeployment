@@ -3,10 +3,12 @@ import { AiOutlineDown, AiOutlineUp } from 'react-icons/ai';
 import diamond from '../../../images/ashdiamond.png';
 import green from '../../../images/greenpool.png';
 import path from '../../../images/pathIcon.png';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { showCreateAPair, showRemoveLiquidity } from '../../Features/PoolSlice';
+import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { useAccount } from 'wagmi';
 
-function LiquidityMain({ addLiquidity }) {
+function LiquidityMain() {
   const dispatch = useDispatch();
 
   const [pools, setPools] = useState([
@@ -20,6 +22,17 @@ function LiquidityMain({ addLiquidity }) {
         pool.id === id ? { ...pool, liquidity: !pool.liquidity } : pool
       )
     );
+  }
+
+  const { signer } = useSelector((state) => state.web3);
+
+  const { openConnectModal } = useConnectModal();
+  const { isConnected } = useAccount();
+
+  function checkIsConnected() {
+    if (!isConnected) {
+      openConnectModal();
+    }
   }
   return (
     <section className="w-full max-w-[586px] sm:w-[586px] mx-auto px-3 sm:px-0">
@@ -36,9 +49,11 @@ function LiquidityMain({ addLiquidity }) {
       <div className="flex items-center justify-between mt-9">
         <p className="text-[12px] sm:text-[16px]">Your Liquidity</p>
         <div className="flex items-center text-[12px] sm:text-[16px]">
-          
           <button
-            onClick={() => dispatch(showCreateAPair())}
+            onClick={() => {
+              if (!signer) checkIsConnected();
+              else dispatch(showCreateAPair());
+            }}
             className="text-[#011718] bg-[#69CED1] sm:w-[127px] h-[36px] sm:h-[48px] px-2 rounded-[20px] sm:rounded-[100px] ml-2 hover:brightness-75"
           >
             Add Liquidity

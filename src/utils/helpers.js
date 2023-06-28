@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { TokenA, TokenB, UniV2Router, erc20ABI } from '../contracts';
+import { UniV2Router, erc20ABI } from '../contracts';
 
 async function getPairAddress({ factoryContract, TokenA, TokenB }) {
   try {
@@ -48,14 +48,7 @@ async function createPair({ factoryContract, TokenA, TokenB }) {
     console.error(`Failed to create pair: ${error}`);
   }
 }
-const approveTokens = async ({
-  signer,
-
-  TokenA,
-  TokenB,
-  amountA,
-  amountB,
-}) => {
+const approveTokens = async ({ signer, TokenA, TokenB, amountA, amountB }) => {
   if (signer) {
     const tokenAContract = new ethers.Contract(
       TokenA.address,

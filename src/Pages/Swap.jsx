@@ -272,26 +272,35 @@ function Swap() {
 
       setRouterContract(rContract);
       setFactoryContract(fContract);
-      if (defaultTokenSwapFrom.token && defaultTokenSwapTo.token) {
+      if (defaultTokenSwapFrom.token) {
         const tokenAContract = new ethers.Contract(
           swapInputs.from.address,
           erc20ABI,
           signer
         );
+
+        setTokenAContract(tokenAContract);
+
+        const balanceAToken = await tokenAContract.balanceOf(address);
+        const tokenABalance = ethers.utils.formatUnits(
+          balanceAToken,
+          swapInputs.from.decimals
+        );
+        setSwapInputs((prevValue) => {
+          return {
+            ...prevValue,
+            from: { ...prevValue.from, balance: tokenABalance },
+          };
+        });
+      }
+      if (defaultTokenSwapTo.token) {
         const tokenBContract = new ethers.Contract(
           swapInputs.to.address,
           erc20ABI,
           signer
         );
-        setTokenAContract(tokenAContract);
         setTokenBContract(tokenBContract);
-
-        const balanceAToken = await tokenAContract.balanceOf(address);
         const balanceBToken = await tokenBContract.balanceOf(address);
-        const tokenABalance = ethers.utils.formatUnits(
-          balanceAToken,
-          swapInputs.from.decimals
-        );
 
         const tokenBBalance = ethers.utils.formatUnits(
           balanceBToken,
@@ -301,15 +310,8 @@ function Swap() {
         setSwapInputs((prevValue) => {
           return {
             ...prevValue,
-            from: { ...prevValue.from, balance: tokenABalance },
             to: { ...prevValue.to, balance: tokenBBalance },
           };
-        });
-
-        await createPair({
-          factoryContract: fContract,
-          TokenA: swapInputs.from,
-          TokenB: swapInputs.to,
         });
       }
     });
@@ -318,6 +320,11 @@ function Swap() {
     try {
       setIsLoading(true);
 
+      await createPair({
+        factoryContract: factoryContract,
+        TokenA: swapInputs.from,
+        TokenB: swapInputs.to,
+      });
       await approveTokens({
         signer,
         TokenA: swapInputs.from,

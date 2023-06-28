@@ -9,21 +9,28 @@ import {
   removeCreateAPair,
   showPoolTokenModal,
   showConfirmSupplyModal,
+  setPoolTokenType,
 } from '../Features/PoolSlice';
 import ConfirmSupplyModal from './ConfirmSupplyModal';
+import { getEstimatedTokensOut } from '../../utils/helpers';
 
-function CreateAPair() {
-  const { displayConfirmSupplyModal, firstInputToken } = useSelector(
-    (store) => store.poolFunc
-  );
+function CreateAPair({ addLiquidity }) {
+  const { displayConfirmSupplyModal, firstInputToken, secondInputToken } =
+    useSelector((store) => store.poolFunc);
+
   const dispatch = useDispatch();
+  const { router } = useSelector((s) => s.web3);
 
   const [inputs, setInputs] = useState({
     input1: '',
     input2: '',
   });
+  const [tokensPerUnit, setTokensPerUnit] = useState({
+    token1: '',
+    token2: '',
+  });
 
-  function updateInputs(e) {
+  async function updateInputs(e) {
     const { name, value } = e.target;
     setInputs((prevValue) => {
       return {
@@ -31,11 +38,48 @@ function CreateAPair() {
         [name]: value,
       };
     });
+
+    const f = {
+      address: firstInputToken.token,
+      symbol: firstInputToken.symbol,
+      decimals: firstInputToken.decimals,
+    };
+    const s = {
+      address: secondInputToken.token,
+      symbol: secondInputToken.symbol,
+      decimals: secondInputToken.decimals,
+    };
+    const amountPerTokenOut = await getEstimatedTokensOut({
+      routerContract: router,
+      amountIn: '1',
+      TokenIn: s,
+      TokenOut: f,
+    });
+    const amountPerTokenIn = await getEstimatedTokensOut({
+      routerContract: router,
+      amountIn: '1',
+      TokenIn: f,
+      TokenOut: s,
+    });
+    setTokensPerUnit({
+      token1: amountPerTokenOut,
+      token2: amountPerTokenIn,
+    });
   }
 
   return (
     <div>
-      {displayConfirmSupplyModal && <ConfirmSupplyModal />}
+      {displayConfirmSupplyModal && (
+        <ConfirmSupplyModal
+          {...{
+            inputs,
+            tokensPerUnit,
+            firstInputToken,
+            secondInputToken,
+            addLiquidity,
+          }}
+        />
+      )}
       <section
         className={`w-full max-w-[464px] sm:w-[464px] ${
           inputs.input1 * 1 && inputs.input2 * 1 && !inputs.input1.includes(' ')
@@ -74,7 +118,10 @@ function CreateAPair() {
 
               <div
                 className="flex items-center cursor-pointer"
-                onClick={() => dispatch(showPoolTokenModal())}
+                onClick={() => {
+                  dispatch(showPoolTokenModal());
+                  dispatch(setPoolTokenType('first'));
+                }}
               >
                 <img
                   src={
@@ -91,7 +138,7 @@ function CreateAPair() {
                 </i>
               </div>
             </div>
-            <p>Balance: 70.42</p>
+            <p>Balance: {firstInputToken?.balance || 0.0}</p>
           </div>
 
           <div className="bg-white h-[2px] my-7 flex items-center justify-end">
@@ -113,16 +160,22 @@ function CreateAPair() {
                 className="w-[50%] sm:w-[230px] pr-2 bg-[#152F30] outline-none text-[20px] sm:text-[34px]"
               />
 
-              {inputs.input1 * 1 &&
-              inputs.input2 * 1 &&
-              !inputs.input1.includes(' ') ? (
-                <div className="flex items-center cursor-pointer">
+              {secondInputToken.token ? (
+                <div
+                  className="flex items-center cursor-pointer"
+                  onClick={() => {
+                    dispatch(showPoolTokenModal());
+                    dispatch(setPoolTokenType('second'));
+                  }}
+                >
                   <img
-                    src={blackDiamond}
+                    src={secondInputToken.logo ? secondInputToken.logo : null}
                     alt="black-diamond"
                     className="w-[40px] h-[40px]"
                   />
-                  <span className="text-[18px] ml-2">AWC</span>
+                  <span className="text-[18px] ml-2">
+                    {secondInputToken.symbol}
+                  </span>
                   <i className="ml-2">
                     <AiOutlineDown />
                   </i>
@@ -130,7 +183,10 @@ function CreateAPair() {
               ) : (
                 <button
                   className="flex items-center text-[#011718] bg-[#69CED1] w-[170px] h-[48px] justify-center rounded-[100px] hover:opacity-70 cursor-pointer"
-                  onClick={() => dispatch(showPoolTokenModal())}
+                  onClick={() => {
+                    dispatch(showPoolTokenModal());
+                    dispatch(setPoolTokenType('second'));
+                  }}
                 >
                   Select a Token{' '}
                   <i className="ml-2 text-white">
@@ -139,7 +195,9 @@ function CreateAPair() {
                 </button>
               )}
             </div>
-            <p>Balance: -</p>
+            <p>
+              Balance: {secondInputToken.token ? secondInputToken.balance : 0.0}
+            </p>
           </div>
         </div>
 
@@ -154,7 +212,8 @@ function CreateAPair() {
             <p className="flex justify-between items-center">
               <span>Price</span>
               <span className="flex items-center">
-                0.0021672 ETH per 1INCH{' '}
+                {Number(tokensPerUnit.token1).toFixed(6)}
+                {`${firstInputToken.symbol}`} per 1{secondInputToken.symbol}
                 <i className="ml-2 rotate-[300deg]">
                   <MdLoop />
                 </i>
