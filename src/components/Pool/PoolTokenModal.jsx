@@ -42,7 +42,7 @@ function PoolTokenModal() {
 
     setSearchToken({ [name]: value });
     const t = Token_List.filter((x) =>
-      x.tokenName.toLocaleLowerCase().includes(value.toLocaleLowerCase())
+      x.name.toLocaleLowerCase().includes(value.toLocaleLowerCase())
     );
     setTokenList(t);
   }
@@ -174,7 +174,7 @@ function Item({ token, index, searchToken, dispatch, selectToken }) {
     >
       <img src={token.logo} alt="logo" className="w-[40px] mr-4" />
       <div>
-        <p>{token.tokenName}</p>
+        <p>{token.name}</p>
         <p>{token.desc}</p>
       </div>
       <p className="ml-auto">
@@ -194,7 +194,7 @@ function Item({ token, index, searchToken, dispatch, selectToken }) {
             Number.isInteger(balance)
               ? balance.toPrecision(6)
               : balance.toFixed(4)
-          } ${token.tokenName}`
+          } ${token.name}`
         )}
       </p>
     </button>

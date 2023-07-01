@@ -1,48 +1,86 @@
 import React, { useEffect, useState } from 'react';
 import { AiOutlineClose, AiOutlineSearch } from 'react-icons/ai';
 import { BiEdit } from 'react-icons/bi';
-import { TokenList } from '../Temporary/TokenList';
+import triangle from '../../images/tri.png';
+
 import { useDispatch, useSelector } from 'react-redux';
-import groupWallet from '../../images/groupwallet.png';
 import { displayManageModal, hideTokenModal } from '../Features/ModalSlice';
 import {
-  importToken,
-  importTokenForSwapFromAndSwapTo,
+  importTokenSwap,
+  selectDefaultSwapFrom,
   selectDefaultSwapTo,
 } from '../Features/TokenSlice';
-import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
 import { erc20ABI } from '../../contracts';
+import { useAccount } from 'wagmi';
+import { isValidAddress } from '../../utils/helpers';
+import { toast } from 'react-toastify';
+function TokenModalSwapFrom() {
+  const { defaultTokenSwapTo, defaultTokenSwapFrom } = useSelector(
+    (state) => state.token
+  );
+  const { Token_List } = useSelector((state) => state.token);
+  const { tokenModalSwapType } = useSelector((store) => store.modal);
+  const oppositeToken =
+    tokenModalSwapType === 'from' ? defaultTokenSwapTo : defaultTokenSwapFrom;
+  const [tokenList, setTokenList] = useState(
+    Token_List.filter((token) => oppositeToken?.address !== token.address)
+  );
 
-function TokenModal() {
-  const Token_List = TokenList;
   const [searchToken, setSearchToken] = useState({
     filteredToken: '',
   });
-  const { defaultTokenSwapFrom } = useSelector((state) => state.token);
   const { signer } = useSelector((state) => state.web3);
-  const filteredList = TokenList.filter(
-    (token) => defaultTokenSwapFrom.token !== token.token
-  );
-  const [tokenList, setTokenList] = useState(filteredList);
-  function filterThroughToken(e) {
+  const [importToken, setImportToken] = useState({});
+  async function filterThroughToken(e) {
     const { name, value } = e.target;
     setSearchToken({ [name]: value });
-    const t = filteredList.filter((x) =>
-      x.tokenName.toLocaleLowerCase().includes(value.toLocaleLowerCase())
+
+    if (value === '') {
+      return setTokenList(
+        Token_List.filter((token) => oppositeToken?.address !== token.address)
+      );
+    }
+
+    const t = Token_List.filter(
+      (token) => oppositeToken?.address !== token.address
+    ).filter(
+      (token) =>
+        token.name.toLocaleLowerCase().includes(value.toLocaleLowerCase()) ||
+        token.address.toLocaleLowerCase().includes(value.toLocaleLowerCase())
     );
+
+    if (isValidAddress(value) && !t.length) {
+      try {
+        const token = new ethers.Contract(value, erc20ABI, signer);
+        const name = await token.name();
+        const symbol = await token.symbol();
+        const decimals = await token.decimals();
+        setImportToken({
+          name,
+          symbol,
+          decimals,
+          address: value,
+          logo: triangle,
+        });
+      } catch (error) {
+        toast.error('Invalid Token Address');
+      }
+    }
     setTokenList(t);
   }
 
   const dispatch = useDispatch();
 
-  function selectThisDefaultToken(token) {
-    dispatch(selectDefaultSwapTo(token));
+  function selectToken(token) {
+    if (tokenModalSwapType === 'from') dispatch(selectDefaultSwapFrom(token));
+    else dispatch(selectDefaultSwapTo(token));
+
     dispatch(hideTokenModal());
   }
 
-  function importForSwapTo(id) {
-    dispatch(importToken(id));
+  function importForSwapFrom(token) {
+    dispatch(importTokenSwap(token));
   }
 
   return (
@@ -63,7 +101,7 @@ function TokenModal() {
           <input
             type="text"
             name="filteredToken"
-            placeholder="search name or paste address heyy"
+            placeholder="search name or paste address"
             id=""
             value={searchToken.filteredToken}
             onChange={filterThroughToken}
@@ -75,23 +113,38 @@ function TokenModal() {
         </div>
 
         <div id="hide-scroll" className="mb-3 h-full overflow-y-scroll">
-          {tokenList.map((token, index) => (
+          <>
+            {tokenList.map((token, index) => (
+              <Item
+                {...{
+                  token,
+                  signer,
+                  // setTokenList,
+                  searchToken,
+                  index,
+                  selectToken,
+                  importForSwapFrom,
+                }}
+                key={index}
+              />
+            ))}
+          </>
+          {importToken.address && (
             <Item
               {...{
-                token,
+                token: importToken,
                 signer,
                 searchToken,
-                index,
-                selectThisDefaultToken,
-                importForSwapTo,
+                index: tokenList.length + 9999,
+                selectToken,
+                importForSwapFrom,
               }}
-              key={index}
             />
-          ))}
+          )}
         </div>
 
         {searchToken.filteredToken && (
-          <button
+          <div
             className="h-[48px] w-full max-w-[384px] sm:w-[384px] m-auto bg-[#1B595B] rounded-[100px] flex items-center justify-center"
             onClick={() => dispatch(displayManageModal())}
           >
@@ -99,69 +152,83 @@ function TokenModal() {
               <BiEdit />
             </i>
             <span>Manager</span>
-          </button>
+          </div>
         )}
       </div>
     </div>
   );
 }
-
 const Item = ({
   token,
   signer,
   searchToken,
-
-  selectThisDefaultToken,
-  importForSwapTo,
+  setTokenList,
+  selectToken,
+  importForSwapFrom,
 }) => {
   const [balance, setBalance] = useState(0.0);
   const { address } = useAccount();
   const [decimals, setDecimals] = useState(18);
   useEffect(() => {
-    if (token.id <= 3) {
-      (async function () {
+    (async function () {
+      try {
         const tokenContract = new ethers.Contract(
-          token.token,
+          token.address,
           erc20ABI,
           signer
         );
 
         const res = await tokenContract.balanceOf(address);
         const decimals = await tokenContract.decimals();
-        const b = ethers.utils.formatUnits(res, decimals);
+        const b = Number(ethers.utils.formatUnits(res, decimals));
         setDecimals(decimals);
-        setBalance(Number(b));
-      })();
-    }
+        setBalance(b);
+        // setTokenList((prev) => {
+        //   const tokenIndex = prev.findIndex((x) => x.token === token.address);
+        //   const newList = [...prev];
+        //   newList[tokenIndex] = {
+        //     ...newList[tokenIndex],
+        //     balance: b,
+        //     decimals,
+        //   };
+        //   return newList;
+        // });
+      } catch (e) {
+        // console.log(e);
+      }
+    })();
   }, []);
 
   return (
     <button
-      disabled={searchToken.filteredToken ? true : false}
+      disabled={
+        searchToken.filteredToken.length && balance === 0.0 ? true : false
+      }
       className="flex items-center w-full h-[72px] bg-[#1B595B] border border-[#69CED1] px-2 mb-3 rounded-lg cursor-pointer"
-      onClick={() => selectThisDefaultToken({ ...token, balance, decimals })}
+      onClick={() => selectToken({ ...token, balance, decimals })}
     >
       <img src={token.logo} alt="logo" className="w-[40px] mr-4" />
       <div>
-        <p>{token.tokenName}</p>
+        <p>{token.name}</p>
       </div>
-      <p className="ml-auto">
-        {searchToken.filteredToken.length > 0 ? (
-          <button
+      <div className="ml-auto">
+        {searchToken.filteredToken.length > 0 && balance === 0.0 ? (
+          <div
             className="bg-[#69CED1] w-[75px] h-[32px] rounded-[100px] hover:opacity-70"
-            onClick={() => importForSwapTo(token.id)}
+            onClick={() => importForSwapFrom(token)}
           >
             Import
-          </button>
+          </div>
         ) : (
           `${
             Number.isInteger(balance)
               ? balance.toPrecision(6)
               : balance.toFixed(4)
-          } ${token.tokenName}`
+          } ${token.name}`
         )}
-      </p>
+      </div>
     </button>
   );
 };
-export default TokenModal;
+
+export default TokenModalSwapFrom;

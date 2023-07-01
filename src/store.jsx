@@ -28,6 +28,7 @@ export const store = configureStore({
           'web3/setRouter',
           'web3/setFactory',
           'web3/connectAccount',
+          'token_slice/getAllToken',
         ],
       },
     }),

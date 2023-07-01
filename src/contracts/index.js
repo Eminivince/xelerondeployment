@@ -1,5 +1,6 @@
 import routerABI from './router.abi.json';
 import factoryABI from './factory.abi.json';
+import pairABI from './pair.abi.json';
 import erc20ABI from './erc20.abi.json';
 const ERC20 = '0x952eC2137def102C2a98a57F449F4A8a7Da1a50C';
 const Factory = '0x3d8FCc7D07b9dd7dC2b30410DAa5cE40Cd0ab0d7';
@@ -29,6 +30,7 @@ export {
   routerABI,
   factoryABI,
   erc20ABI,
+  pairABI,
   ERC20,
   Factory,
   Pair,

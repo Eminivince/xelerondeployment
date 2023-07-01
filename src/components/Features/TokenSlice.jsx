@@ -1,45 +1,37 @@
 import { createSlice } from '@reduxjs/toolkit';
-import { TokenList } from '../Temporary/TokenList';
+import blackDiamond from '../../images/blackdiamond.png';
 
 const initialState = {
-  Token_List: TokenList,
+  Token_List: [],
   currentImport: {},
-  currentImportSwapFrom: {},
-  defaultTokenSwapFrom: {},
+  defaultTokenSwapFrom: {
+    name: 'Ethereum',
+    symbol: 'ETH',
+    decimals: 18,
+    logo: blackDiamond,
+    address: '0x0000000000000000000000000000000000000000',
+  },
   defaultTokenSwapTo: {},
   displayImportToken: false,
-  displayImportTokenSwapFrom: false,
-  currentlyImportingForSwapFrom: false,
-  currentlyImportingForSwapTo: false,
 };
 
 const tokenSlice = createSlice({
   name: 'token_slice',
   initialState,
   reducers: {
-    importToken: (state, { payload }) => {
-      state.currentImport = state.Token_List.find(
-        (token) => token.id === payload
-      );
-      state.displayImportToken = true;
+    setAllToken: (state, { payload }) => {
+      state.Token_List = payload;
     },
-    ValidateImport: (state) => {
-      state.defaultTokenSwapTo = state.currentImport;
-    },
-    ValidateImportSwapFrom: (state) => {
-      state.defaultTokenSwapFrom = state.currentImportSwapFrom;
-    },
+
     hideImportToken: (state) => {
       state.displayImportToken = false;
     },
-    importTokenSwapFrom: (state, { payload }) => {
-      state.currentImportSwapFrom = state.Token_List.find(
-        (token) => token.id === payload
-      );
-      state.displayImportTokenSwapFrom = true;
+    importTokenSwap: (state, { payload }) => {
+      state.currentImport = payload;
+      state.displayImportToken = true;
     },
     hideImportTokenSwapFrom: (state) => {
-      state.displayImportTokenSwapFrom = false;
+      state.displayImportToken = false;
     },
     selectDefaultSwapFrom: (state, { payload }) => {
       state.defaultTokenSwapFrom = payload;
@@ -56,15 +48,13 @@ const tokenSlice = createSlice({
 });
 
 export const {
-  importToken,
+  setAllToken,
   importTokenForSwapFromAndSwapTo,
   hideImportToken,
-  importTokenSwapFrom,
+  importTokenSwap,
   hideImportTokenSwapFrom,
   selectDefaultSwapFrom,
   selectDefaultSwapTo,
-  ValidateImportSwapFrom,
-  ValidateImport,
   switchDefaultSwap,
 } = tokenSlice.actions;
 

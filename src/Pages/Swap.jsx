@@ -13,9 +13,9 @@ import blackDiamond from '../images/blackdiamond.png';
 import { useDispatch, useSelector } from 'react-redux';
 import SettingsModal from '../components/Modal/SettingsModal';
 import {
-  displaySwapETHforToken,
   displayTokenModal,
   displayTokenModalSwapFrom,
+  displayTokenModalSwapTo,
   displayTransactionSubmitted,
   showTransactionSettingsModal,
 } from '../components/Features/ModalSlice';
@@ -23,10 +23,7 @@ import TokenModal from '../components/Modal/TokenModal';
 import ImportTokenModal from '../components/Modal/ImportTokenModal';
 import ManageModal from '../components/Modal/ManageModal';
 import SwapETHforToken from '../components/Modal/SwapETHforToken';
-import dash from '../images/dash.png';
-import TokenModalSwapFrom from '../components/Modal/TokenModalSwapFrom';
-import ImportTokenModalForSwapFrom from '../components/Modal/ImportTokenModalForSwapFrom';
-import cex from '../images/cex.png';
+
 import { ethers } from 'ethers';
 import { toast } from 'react-toastify';
 import {
@@ -40,80 +37,86 @@ import Web3Modal from 'web3modal';
 import { useAccount } from 'wagmi';
 import {
   approveTokens,
+  calculatePriceImpact,
   createPair,
   getEstimatedTokensOut,
 } from '../utils/helpers';
-import { ChainId, Token, WETH, Fetcher } from '@uniswap/sdk';
 
 import TransactionSumbmitted from '../components/Modal/TransactionSumbmitted';
-import { arbitrumGoerli } from 'viem/chains';
 import { setSigner } from '../components/Features/web3Slice';
-import { switchDefaultSwap } from '../components/Features/TokenSlice';
+import {
+  setAllToken,
+  switchDefaultSwap,
+} from '../components/Features/TokenSlice';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
 
 function Swap() {
   const current = 'swap';
   const {
     transactionSettingsModal,
     tokenModal,
-    tokenModalSwapFrom,
+
     manageModal,
     swapETHModal,
     transactionSubmitModal,
   } = useSelector((store) => store.modal);
 
-  const {
-    displayImportToken,
-    defaultTokenSwapFrom,
-    defaultTokenSwapTo,
-    displayImportTokenSwapFrom,
-  } = useSelector((store) => store.token);
+  const { displayImportToken, defaultTokenSwapFrom, defaultTokenSwapTo } =
+    useSelector((store) => store.token);
 
   const dispatch = useDispatch();
 
   const [swapInputs, setSwapInputs] = useState({
     from: {
       value: '',
-      address: defaultTokenSwapFrom.token,
-      symbol: defaultTokenSwapFrom.symbol,
-      decimals: defaultTokenSwapFrom.decimals,
-      balance: defaultTokenSwapFrom.balance,
+      balance: defaultTokenSwapFrom?.balance,
+      ...defaultTokenSwapFrom,
     },
     to: {
       value: '',
-      address: defaultTokenSwapTo.token,
-      symbol: defaultTokenSwapTo.symbol,
-      decimals: defaultTokenSwapTo.decimals,
-      balance: defaultTokenSwapTo.balance,
+      balance: defaultTokenSwapTo?.balance,
+      ...defaultTokenSwapTo,
     },
   });
   const [swapPrice, setSwapPrice] = useState(0);
+
+  useEffect(() => {
+    (async () => {
+      const querySnapshot = await getDocs(collection(db, 'tokens'));
+      const temp = await Promise.all(
+        querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      );
+      dispatch(setAllToken(temp));
+    })();
+  }, [dispatch]);
+
   useEffect(() => {
     setSwapInputs((prevValue) => {
       return {
         ...prevValue,
         from: {
           ...prevValue.from,
-          address: defaultTokenSwapFrom.token,
-          symbol: defaultTokenSwapFrom.symbol,
-          decimals: defaultTokenSwapFrom.decimals,
-          balance: defaultTokenSwapFrom.balance,
+          address: defaultTokenSwapFrom?.address,
+          symbol: defaultTokenSwapFrom?.symbol,
+          decimals: defaultTokenSwapFrom?.decimals,
+          balance: defaultTokenSwapFrom?.balance,
         },
         to: {
           ...prevValue.to,
-          address: defaultTokenSwapTo.token,
-          symbol: defaultTokenSwapTo.symbol,
-          decimals: defaultTokenSwapTo.decimals,
-          balance: defaultTokenSwapTo.balance,
+          address: defaultTokenSwapTo?.address,
+          symbol: defaultTokenSwapTo?.symbol,
+          decimals: defaultTokenSwapTo?.decimals,
+          balance: defaultTokenSwapTo?.balance,
         },
       };
     });
-    console.log('changine');
   }, [defaultTokenSwapFrom, defaultTokenSwapTo]);
   async function fillSwapInputs(e) {
     const { name, value } = e.target;
     let oppositeInput = name === 'from' ? 'to' : 'from';
-    if (!defaultTokenSwapFrom.token || !defaultTokenSwapTo.token) {
+    if (!defaultTokenSwapFrom?.address || !defaultTokenSwapTo?.address) {
       return toast.error('Select the Token First');
     }
     setSwapInputs((prevValue) => {
@@ -177,6 +180,18 @@ function Swap() {
 
     setSwapPrice(amountPerTokenOut);
     setFetchingPrice(false);
+    const pairAddress = await createPair({
+      factoryContract,
+      TokenA: swapInputs.from,
+      TokenB: swapInputs.to,
+    });
+    const priceImpact = await calculatePriceImpact({
+      amountIn: value,
+      TokenA: swapInputs.from,
+      pairAddress,
+      signer,
+    });
+    console.log({ priceImpact });
   }
 
   function clearSwapInputFrom() {
@@ -245,10 +260,7 @@ function Swap() {
   const { address, isConnected } = useAccount();
   const [routerContract, setRouterContract] = useState(null);
   const [factoryContract, setFactoryContract] = useState(null);
-  const [tokenAContract, setTokenAContract] = useState(null);
-  const [tokenBContract, setTokenBContract] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
-  const [amountInMin, setAmountInMin] = useState(0);
   const [amountOutMin, setAmountOutMin] = useState(0);
   const [fetchingPrice, setFetchingPrice] = useState(false);
 
@@ -272,65 +284,16 @@ function Swap() {
 
       setRouterContract(rContract);
       setFactoryContract(fContract);
-      if (defaultTokenSwapFrom.token) {
-        const tokenAContract = new ethers.Contract(
-          swapInputs.from.address,
-          erc20ABI,
-          signer
-        );
-
-        setTokenAContract(tokenAContract);
-
-        const balanceAToken = await tokenAContract.balanceOf(address);
-        const tokenABalance = ethers.utils.formatUnits(
-          balanceAToken,
-          swapInputs.from.decimals
-        );
-        setSwapInputs((prevValue) => {
-          return {
-            ...prevValue,
-            from: { ...prevValue.from, balance: tokenABalance },
-          };
-        });
-      }
-      if (defaultTokenSwapTo.token) {
-        const tokenBContract = new ethers.Contract(
-          swapInputs.to.address,
-          erc20ABI,
-          signer
-        );
-        setTokenBContract(tokenBContract);
-        const balanceBToken = await tokenBContract.balanceOf(address);
-
-        const tokenBBalance = ethers.utils.formatUnits(
-          balanceBToken,
-          swapInputs.to.decimals
-        );
-
-        setSwapInputs((prevValue) => {
-          return {
-            ...prevValue,
-            to: { ...prevValue.to, balance: tokenBBalance },
-          };
-        });
-      }
     });
   }, [address, isConnected]);
   const swapExactTokensForTokens = async () => {
     try {
       setIsLoading(true);
 
-      await createPair({
-        factoryContract: factoryContract,
-        TokenA: swapInputs.from,
-        TokenB: swapInputs.to,
-      });
       await approveTokens({
         signer,
         TokenA: swapInputs.from,
-        TokenB: swapInputs.to,
         amountA: `${swapInputs.from.value}`,
-        amountB: `${swapInputs.to.value}`,
       });
       const path = [swapInputs.from.address, swapInputs.to.address];
       const to = address;
@@ -355,7 +318,16 @@ function Swap() {
       await tx.wait();
       console.log(`Transaction hash: ${tx.hash}`);
       setIsLoading(false);
-
+      const tokenAContract = new ethers.Contract(
+        defaultTokenSwapFrom.address,
+        erc20ABI,
+        signer
+      );
+      const tokenBContract = new ethers.Contract(
+        defaultTokenSwapTo.address,
+        erc20ABI,
+        signer
+      );
       const balanceAToken = await tokenAContract.balanceOf(address);
       const balanceBToken = await tokenBContract.balanceOf(address);
       const tokenABalance = ethers.utils.formatUnits(
@@ -387,10 +359,10 @@ function Swap() {
       <AltNav current={current} />
 
       {transactionSettingsModal && <SettingsModal />}
-      {tokenModalSwapFrom && <TokenModalSwapFrom />}
       {tokenModal && <TokenModal />}
+
       {displayImportToken && <ImportTokenModal />}
-      {displayImportTokenSwapFrom && <ImportTokenModalForSwapFrom />}
+
       {manageModal && <ManageModal />}
       {swapETHModal && (
         <SwapETHforToken
@@ -446,25 +418,21 @@ function Swap() {
                   </i>
                   <div
                     className="flex items-center cursor-pointer"
-                    onClick={() =>
-                      !signer
-                        ? checkIsConnected()
-                        : dispatch(displayTokenModalSwapFrom())
-                    }
+                    onClick={() => {
+                      if (!signer) checkIsConnected();
+                      else {
+                        dispatch(displayTokenModalSwapFrom());
+                        dispatch(displayTokenModal());
+                      }
+                    }}
                   >
                     <img
-                      src={
-                        defaultTokenSwapFrom.logo
-                          ? defaultTokenSwapFrom.logo
-                          : blackDiamond
-                      }
+                      src={defaultTokenSwapFrom?.logo}
                       alt="black-diamond"
                       className="w-[40px] h-[40px]"
                     />
                     <span className="text-[18px] ml-2">
-                      {defaultTokenSwapFrom.symbol
-                        ? defaultTokenSwapFrom.symbol
-                        : 'ETH'}
+                      {defaultTokenSwapFrom?.symbol}
                     </span>
                     <i className="ml-2">
                       <AiOutlineDown />
@@ -498,13 +466,15 @@ function Swap() {
                     placeholder="0"
                     className="w-[50%] sm:w-[230px] pr-2 bg-[#152F30] outline-none text-[20px] sm:text-[34px]"
                   />
-                  {defaultTokenSwapTo.tokenName ? (
+                  {defaultTokenSwapTo?.name ? (
                     <div
                       className="flex items-center h-[48px] justify-center cursor-pointer"
                       onClick={() => dispatch(displayTokenModal())}
                     >
-                      <img src={defaultTokenSwapTo.logo} alt="dash" />
-                      <span className="ml-2">{defaultTokenSwapTo.symbol} </span>
+                      <img src={defaultTokenSwapTo?.logo} alt="dash" />
+                      <span className="ml-2">
+                        {defaultTokenSwapTo?.symbol}{' '}
+                      </span>
                       <i className="ml-2 text-white">
                         <AiOutlineDown />
                       </i>
@@ -513,9 +483,11 @@ function Swap() {
                     <button
                       className="flex items-center text-[#011718] bg-[#69CED1] w-[170px] h-[48px] justify-center rounded-[100px] hover:opacity-70 cursor-pointer"
                       onClick={() => {
-                        console.log({ signer });
                         if (!signer) checkIsConnected();
-                        else dispatch(displayTokenModal());
+                        else {
+                          dispatch(displayTokenModalSwapTo());
+                          dispatch(displayTokenModal());
+                        }
                       }}
                     >
                       Select a Token{' '}
@@ -644,16 +616,16 @@ function Swap() {
                 <div className="flex items-center cursor-pointer">
                   <img
                     src={
-                      defaultTokenSwapFrom.logo
-                        ? defaultTokenSwapFrom.logo
+                      defaultTokenSwapFrom?.logo
+                        ? defaultTokenSwapFrom?.logo
                         : blackDiamond
                     }
                     alt="black-diamond"
                     className="w-[40px] h-[40px]"
                   />
                   <span className="text-[18px] ml-2">
-                    {defaultTokenSwapFrom.symbol
-                      ? defaultTokenSwapFrom.symbol
+                    {defaultTokenSwapFrom?.symbol
+                      ? defaultTokenSwapFrom?.symbol
                       : 'ETH'}
                   </span>
                 </div>
@@ -670,8 +642,8 @@ function Swap() {
                   : Number(swapInputs.to.value).toFixed(6)}
               </p>
               <div className="flex items-center h-[48px] justify-center cursor-pointer">
-                <img src={defaultTokenSwapTo.logo} alt="dash" />
-                <span className="ml-2">{defaultTokenSwapTo.symbol}</span>
+                <img src={defaultTokenSwapTo?.logo} alt="dash" />
+                <span className="ml-2">{defaultTokenSwapTo?.symbol}</span>
                 <i className="ml-2 text-white">
                   <AiOutlineDown />
                 </i>

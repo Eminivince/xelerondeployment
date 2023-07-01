@@ -134,9 +134,7 @@ function ManageModal() {
 
             <div id="hide-scroll" className="mt-3 overflow-y-scroll h-full">
               {Manage_List.filter((x) =>
-                x.tokenName
-                  .toLowerCase()
-                  .includes(filterManage.list.toLowerCase())
+                x.name.toLowerCase().includes(filterManage.list.toLowerCase())
               ).map((token) => {
                 return (
                   <div
@@ -149,7 +147,7 @@ function ManageModal() {
                       className="w-[40px] h-[40px] mr-4"
                     />
                     <div>
-                      <p>{token.tokenName}</p>
+                      <p>{token.name}</p>
                       <p className="text-[12px] flex items-center">
                         {token.number} Tokens{' '}
                         <i className="ml-3">
@@ -197,9 +195,7 @@ function ManageModal() {
 
             <div id="hide-scroll" className="mt-3 overflow-y-scroll h-[65%]">
               {Manage_Token.filter((x) =>
-                x.tokenName
-                  .toLowerCase()
-                  .includes(filterManage.token.toLowerCase())
+                x.name.toLowerCase().includes(filterManage.token.toLowerCase())
               ).map((token) => {
                 return (
                   <div
@@ -212,7 +208,7 @@ function ManageModal() {
                         alt="icon"
                         className="w-[40px] h-[40px] mr-4"
                       />
-                      <p>{token.tokenName}</p>
+                      <p>{token.name}</p>
                     </div>
                     <div className="flex items-center">
                       <i

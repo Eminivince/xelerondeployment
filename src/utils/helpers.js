@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { UniV2Router, erc20ABI } from '../contracts';
+import { UniV2Router, erc20ABI, pairABI } from '../contracts';
 
 async function getPairAddress({ factoryContract, TokenA, TokenB }) {
   try {
@@ -13,13 +13,61 @@ async function getPairAddress({ factoryContract, TokenA, TokenB }) {
     // if (pairAddress === '0x0000000000000000000000000000000000000000') {
     //   console.log('Pair does not exist');
     // } else {
-    //   console.log(`Pair address: ${pairAddress}`);
+
     // }
     return pairAddress;
   } catch (error) {
     console.error(`Failed to get pair address: ${error}`);
   }
 }
+const calculatePriceImpact = async ({
+  amountIn,
+  TokenA,
+  pairAddress,
+  signer,
+}) => {
+  amountIn = ethers.utils.parseUnits(amountIn, TokenA.decimals);
+  const pairContract = new ethers.Contract(pairAddress, pairABI, signer);
+  // Fetch the reserves and tokens from the pair contract
+  const reserves = await pairContract.getReserves();
+  const token0 = await pairContract.token0();
+  const token1 = await pairContract.token1();
+
+  // Check if the token being swapped from is token0 or token1
+  let reserveIn, reserveOut;
+  if (token0.toLowerCase() === TokenA.address.toLowerCase()) {
+    reserveIn = reserves[0];
+    reserveOut = reserves[1];
+  } else if (token1.toLowerCase() === TokenA.address.toLowerCase()) {
+    reserveIn = reserves[1];
+    reserveOut = reserves[0];
+  } else {
+    throw new Error("The input token isn't part of the pair.");
+  }
+  console.log({
+    token0,
+    token1,
+    reserveIn: reserveIn.toString(),
+    reserveOut: reserveOut.toString(),
+  });
+  // Now you have the correct reserves for the token you're swapping from (reserveIn)
+  // and the token you're swapping to (reserveOut)
+  const slippageTolerance = 50; // 50 bips, or 0.50%
+  // We calculate the price impact
+  const amountInWithSlippage = amountIn
+    .mul(10000)
+    .div(10000 - slippageTolerance); // This accounts for slippage
+  const numerator = reserveOut.mul(amountInWithSlippage);
+  const denominator = reserveIn.add(amountInWithSlippage);
+  const amountOut = numerator.div(denominator);
+
+  const idealOutcome = reserveOut.mul(amountIn).div(reserveIn);
+  const slippage = idealOutcome.sub(amountOut);
+  const priceImpact = slippage.div(amountIn).mul(100); // Gives the price impact in percentage
+
+  return priceImpact.toString(); // Returns the price impact in percentage
+};
+
 async function createPair({ factoryContract, TokenA, TokenB }) {
   try {
     const Pair = await getPairAddress({
@@ -55,45 +103,49 @@ const approveTokens = async ({ signer, TokenA, TokenB, amountA, amountB }) => {
       erc20ABI,
       signer
     );
-    const tokenBContract = new ethers.Contract(
-      TokenB.address,
-      erc20ABI,
-      signer
-    );
     const amountADesired = ethers.utils.parseUnits(
       `${amountA}`,
       TokenA.decimals
-    ); // Replace with desired amounts
-    const amountBDesired = ethers.utils.parseUnits(
-      `${amountB}`,
-      TokenB.decimals
-    ); // Replace with desired amounts
+    );
     const tokenABalanceBigNumber = ethers.utils.parseUnits(
       `${TokenA.balance}`,
       TokenA.decimals
     );
-    const tokenBBalanceBigNumber = ethers.utils.parseUnits(
-      `${TokenB.balance}`,
-      TokenB.decimals
-    );
 
-    // Check if the token balances are sufficient for approval
+    // Replace with desired amounts
     if (tokenABalanceBigNumber.lt(amountADesired)) {
       console.log(`Insufficient ${TokenA.name} balance for approval`);
       throw new Error(`Insufficient ${TokenA.name} balance for approval`);
     }
-    if (tokenBBalanceBigNumber.lt(amountBDesired)) {
-      console.log(`Insufficient ${TokenB.name} balance for approval`);
-      throw new Error(`Insufficient ${TokenB.name} balance for approval`);
+    if (TokenB) {
+      const tokenBContract = new ethers.Contract(
+        TokenB.address,
+        erc20ABI,
+        signer
+      );
+      const amountBDesired = ethers.utils.parseUnits(
+        `${amountB}`,
+        TokenB.decimals
+      ); // Replace with desired amounts
+      const tokenBBalanceBigNumber = ethers.utils.parseUnits(
+        `${TokenB.balance}`,
+        TokenB.decimals
+      );
+
+      // Check if the token balances are sufficient for approval
+      if (tokenBBalanceBigNumber.lt(amountBDesired)) {
+        console.log(`Insufficient ${TokenB.name} balance for approval`);
+        throw new Error(`Insufficient ${TokenB.name} balance for approval`);
+      }
+
+      // Approve tokenB
+      const txB = await tokenBContract.approve(UniV2Router, amountBDesired);
+      await txB.wait();
     }
 
     // Approve tokenA
     const txA = await tokenAContract.approve(UniV2Router, amountADesired);
     await txA.wait();
-
-    // Approve tokenB
-    const txB = await tokenBContract.approve(UniV2Router, amountBDesired);
-    await txB.wait();
 
     console.log('Tokens approved');
   } else {
@@ -131,4 +183,15 @@ const getEstimatedTokensOut = async ({
     console.error('An error occurred', error);
   }
 };
-export { getPairAddress, createPair, approveTokens, getEstimatedTokensOut };
+function isValidAddress(address) {
+  const addressRegex = /^(0x)?[0-9a-fA-F]{40}$/;
+  return addressRegex.test(address);
+}
+export {
+  getPairAddress,
+  createPair,
+  approveTokens,
+  getEstimatedTokensOut,
+  calculatePriceImpact,
+  isValidAddress,
+};

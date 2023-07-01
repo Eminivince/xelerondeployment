@@ -77,13 +77,13 @@ function ConfirmSupplyModal({
                 ...firstInputToken,
 
                 address: firstInputToken.token,
-                name: firstInputToken.tokenName,
+                name: firstInputToken.name,
                 value: inputs.input1,
               },
               {
                 ...secondInputToken,
                 address: secondInputToken.token,
-                name: secondInputToken.tokenName,
+                name: secondInputToken.name,
                 value: inputs.input2,
               }
             )

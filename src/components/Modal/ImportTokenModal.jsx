@@ -3,14 +3,22 @@ import { AiOutlineClose, AiOutlineLeft, AiOutlineCheck } from 'react-icons/ai';
 import { useDispatch, useSelector } from 'react-redux';
 import Caution from '../../images/caution.png';
 import { hideTokenModal } from '../Features/ModalSlice';
-import { hideImportToken, ValidateImport } from '../Features/TokenSlice';
+import {
+  hideImportToken,
+  selectDefaultSwapFrom,
+  selectDefaultSwapTo,
+  setAllToken,
+} from '../Features/TokenSlice';
+import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { toast } from 'react-toastify';
 
 function ImportTokenModal() {
   const { currentImport } = useSelector((store) => store.token);
   const dispatch = useDispatch();
 
-  function completeTokenImport() {
-    dispatch(ValidateImport());
+  async function completeTokenImport() {
+    await addToFireStore();
     dispatch(hideImportToken());
     dispatch(hideTokenModal());
   }
@@ -25,6 +33,30 @@ function ImportTokenModal() {
   function updateApproval(e) {
     setProceed(e.target.checked);
   }
+  const { tokenModalSwapType } = useSelector((store) => store.modal);
+
+  async function addToFireStore() {
+    try {
+      console.log('adding to firestore');
+
+      await addDoc(collection(db, 'tokens'), currentImport);
+      dispatch(
+        tokenModalSwapType === 'from'
+          ? selectDefaultSwapFrom(currentImport)
+          : selectDefaultSwapTo(currentImport)
+      );
+      toast.success('Token added successfully');
+
+      const querySnapshot = await getDocs(collection(db, 'tokens'));
+      const temp = await Promise.all(
+        querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      );
+      dispatch(setAllToken(temp));
+    } catch (err) {
+      console.log(err);
+    }
+  }
+
   return (
     <div className="">
       <div className="bg-[#061111B8] fixed w-full h-fit min-h-[100vh] top-0 left-0 backdrop-blur-[4px] z-50"></div>
@@ -36,7 +68,7 @@ function ImportTokenModal() {
           >
             <AiOutlineLeft />
           </div>
-          <h3 className="">Import Token</h3>
+          <h3 className="">Import Token heyy</h3>
           <div className=" cursor-pointer" onClick={closeTokenModals}>
             <AiOutlineClose />
           </div>
@@ -48,7 +80,7 @@ function ImportTokenModal() {
             <div>
               <p>{currentImport.name}</p>
               <p>{currentImport.address}</p>
-              <p>{currentImport.desc}</p>
+              <p>{currentImport.symbol}</p>
             </div>
           </div>
         ) : (
@@ -84,7 +116,7 @@ function ImportTokenModal() {
                 <AiOutlineCheck />
               </span>
             </div>
-            <div className="ml-2">I undertand</div>
+            <div className="ml-2">I understand</div>
           </label>
 
           <button
