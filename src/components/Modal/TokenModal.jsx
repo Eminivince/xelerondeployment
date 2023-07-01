@@ -162,7 +162,6 @@ const Item = ({
   token,
   signer,
   searchToken,
-  setTokenList,
   selectToken,
   importForSwapFrom,
 }) => {
@@ -183,21 +182,11 @@ const Item = ({
         const b = Number(ethers.utils.formatUnits(res, decimals));
         setDecimals(decimals);
         setBalance(b);
-        // setTokenList((prev) => {
-        //   const tokenIndex = prev.findIndex((x) => x.token === token.address);
-        //   const newList = [...prev];
-        //   newList[tokenIndex] = {
-        //     ...newList[tokenIndex],
-        //     balance: b,
-        //     decimals,
-        //   };
-        //   return newList;
-        // });
       } catch (e) {
         // console.log(e);
       }
     })();
-  }, []);
+  }, [address, signer, token.address]);
 
   return (
     <button
