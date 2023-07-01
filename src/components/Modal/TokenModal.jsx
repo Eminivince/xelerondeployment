@@ -119,7 +119,7 @@ function TokenModalSwapFrom() {
                 {...{
                   token,
                   signer,
-                  // setTokenList,
+
                   searchToken,
                   index,
                   selectToken,
@@ -158,7 +158,7 @@ function TokenModalSwapFrom() {
     </div>
   );
 }
-const Item = ({
+export const Item = ({
   token,
   signer,
   searchToken,
@@ -168,6 +168,7 @@ const Item = ({
   const [balance, setBalance] = useState(0.0);
   const { address } = useAccount();
   const [decimals, setDecimals] = useState(18);
+
   useEffect(() => {
     (async function () {
       try {
@@ -176,25 +177,32 @@ const Item = ({
           erc20ABI,
           signer
         );
-
         const res = await tokenContract.balanceOf(address);
+
+        const b = Number(ethers.utils.formatUnits(res, 18));
         const decimals = await tokenContract.decimals();
-        const b = Number(ethers.utils.formatUnits(res, decimals));
+
         setDecimals(decimals);
         setBalance(b);
       } catch (e) {
-        // console.log(e);
+        throw e;
       }
     })();
   }, [address, signer, token.address]);
-
+  async function handleSelect() {
+    const tokenContract = new ethers.Contract(token.address, erc20ABI, signer);
+    const res = await tokenContract.balanceOf(address);
+    const b = Number(ethers.utils.formatUnits(res, 18));
+    const decimals = await tokenContract.decimals();
+    selectToken({ ...token, balance: b, decimals });
+  }
   return (
     <button
       disabled={
         searchToken.filteredToken.length && balance === 0.0 ? true : false
       }
       className="flex items-center w-full h-[72px] bg-[#1B595B] border border-[#69CED1] px-2 mb-3 rounded-lg cursor-pointer"
-      onClick={() => selectToken({ ...token, balance, decimals })}
+      onClick={handleSelect}
     >
       <img src={token.logo} alt="logo" className="w-[40px] mr-4" />
       <div>

@@ -4,8 +4,6 @@ import {
   AiOutlineSearch,
   AiOutlineQuestionCircle,
 } from 'react-icons/ai';
-import { BiEdit } from 'react-icons/bi';
-import { TokenList } from '../Temporary/TokenList';
 import { useDispatch, useSelector } from 'react-redux';
 // import { displayManageModal, hideTokenModal } from '../Features/ModalSlice';
 import {
@@ -17,10 +15,14 @@ import {
 import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
 import { erc20ABI } from '../../contracts';
+import { isValidAddress } from '../../utils/helpers';
+import triangle from '../../images/tri.png';
+import { toast } from 'react-toastify';
+import { Item } from '../Modal/TokenModal';
 
 function PoolTokenModal() {
-  const Token_List = TokenList;
-
+  const { Token_List } = useSelector((store) => store.token);
+  const { signer } = useSelector((store) => store.web3);
   const { PoolTokenType, firstInputToken, secondInputToken } = useSelector(
     (store) => store.poolFunc
   );
@@ -28,22 +30,49 @@ function PoolTokenModal() {
   const [searchToken, setSearchToken] = useState({
     filteredToken: '',
   });
-  const filteredTokens = Token_List.filter((token) => {
-    if (PoolTokenType === 'first')
-      return secondInputToken.token !== token.token;
-    else if (PoolTokenType === 'second')
-      return firstInputToken.token !== token.token;
-    else return false;
-  });
-  const [tokenList, setTokenList] = useState(filteredTokens);
+  const oppositeToken = PoolTokenType.includes('first')
+    ? secondInputToken
+    : PoolTokenType.includes('second')
+    ? firstInputToken
+    : {};
+  const [tokenList, setTokenList] = useState(
+    Token_List.filter((token) => oppositeToken?.address !== token.address)
+  );
+  const [importToken, setImportToken] = useState({});
 
-  function filterThroughToken(e) {
+  async function filterThroughToken(e) {
     const { name, value } = e.target;
-
     setSearchToken({ [name]: value });
-    const t = Token_List.filter((x) =>
-      x.name.toLocaleLowerCase().includes(value.toLocaleLowerCase())
+    if (value === '') {
+      return setTokenList(
+        Token_List.filter((token) => oppositeToken?.address !== token.address)
+      );
+    }
+    const t = Token_List.filter(
+      (token) => oppositeToken?.address !== token.address
+    ).filter(
+      (token) =>
+        token.name.toLocaleLowerCase().includes(value.toLocaleLowerCase()) ||
+        token.address.toLocaleLowerCase().includes(value.toLocaleLowerCase())
     );
+
+    if (isValidAddress(value) && !t.length) {
+      try {
+        const token = new ethers.Contract(value, erc20ABI, signer);
+        const name = await token.name();
+        const symbol = await token.symbol();
+        const decimals = await token.decimals();
+        setImportToken({
+          name,
+          symbol,
+          decimals,
+          address: value,
+          logo: triangle,
+        });
+      } catch (error) {
+        toast.error('Invalid Token Address');
+      }
+    }
     setTokenList(t);
   }
   const [displayInfo, setDisplayInfo] = useState(false);
@@ -60,7 +89,7 @@ function PoolTokenModal() {
       dispatch(selectTokenForSecondInput(token));
     dispatch(removePoolTokenModal());
   }
-  console.log({ PoolTokenType });
+
   return (
     <div className="">
       <div className="bg-[#061111B8] fixed w-full h-[100vh] min-h-[100vh] top-0 left-0 backdrop-blur-[4px] z-50"></div>
@@ -131,7 +160,7 @@ function PoolTokenModal() {
         <div id="hide-scroll" className="mb-3 h-full overflow-y-scroll">
           {tokenList.map((token, index) => (
             <Item
-              {...{ token, index, searchToken, dispatch, selectToken }}
+              {...{ token, index, signer, searchToken, dispatch, selectToken }}
               key={index}
             />
           ))}
@@ -142,61 +171,3 @@ function PoolTokenModal() {
 }
 
 export default PoolTokenModal;
-
-function Item({ token, index, searchToken, dispatch, selectToken }) {
-  const [balance, setBalance] = useState(0.0);
-  const { address } = useAccount();
-  const [decimals, setDecimals] = useState(18);
-  const { signer } = useSelector((s) => s.web3);
-  useEffect(() => {
-    if (token.id <= 3) {
-      (async function () {
-        const tokenContract = new ethers.Contract(
-          token.token,
-          erc20ABI,
-          signer
-        );
-        console.log('getting balances');
-        const res = await tokenContract.balanceOf(address);
-        const decimals = await tokenContract.decimals();
-        const b = ethers.utils.formatUnits(res, decimals);
-        setDecimals(decimals);
-        setBalance(Number(b));
-      })();
-    }
-  }, [address, signer, token.id, token.token]);
-  return (
-    <button
-      disabled={searchToken.filteredToken ? true : false}
-      key={index}
-      className="flex items-center w-full h-[72px] bg-[#1B595B] border border-[#69CED1] px-2 mb-3 rounded-lg text-[12px] sm:text-[16px]"
-      onClick={() => selectToken({ ...token, balance, decimals })}
-    >
-      <img src={token.logo} alt="logo" className="w-[40px] mr-4" />
-      <div>
-        <p>{token.name}</p>
-        <p>{token.desc}</p>
-      </div>
-      <p className="ml-auto">
-        {searchToken.filteredToken.length > 0 ? (
-          <button
-            className="bg-[#69CED1] w-[75px] h-[32px] rounded-[100px] hover:opacity-70"
-            onClick={() =>
-              dispatch(
-                showPoolImportTokenModal({ ...token, balance, decimals })
-              )
-            }
-          >
-            Import
-          </button>
-        ) : (
-          `${
-            Number.isInteger(balance)
-              ? balance.toPrecision(6)
-              : balance.toFixed(4)
-          } ${token.name}`
-        )}
-      </p>
-    </button>
-  );
-}

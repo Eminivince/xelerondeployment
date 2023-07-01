@@ -1,5 +1,6 @@
 import { ethers } from 'ethers';
 import { UniV2Router, erc20ABI, pairABI } from '../contracts';
+import { toast } from 'react-toastify';
 
 async function getPairAddress({ factoryContract, TokenA, TokenB }) {
   try {
@@ -10,11 +11,7 @@ async function getPairAddress({ factoryContract, TokenA, TokenB }) {
     );
 
     // If the pair doesn't exist, the function will return the zero address
-    // if (pairAddress === '0x0000000000000000000000000000000000000000') {
-    //   console.log('Pair does not exist');
-    // } else {
 
-    // }
     return pairAddress;
   } catch (error) {
     console.error(`Failed to get pair address: ${error}`);
@@ -104,7 +101,7 @@ const approveTokens = async ({ signer, TokenA, TokenB, amountA, amountB }) => {
       signer
     );
     const amountADesired = ethers.utils.parseUnits(
-      `${amountA}`,
+      `${Number(amountA).toFixed(TokenA.decimals)}`,
       TokenA.decimals
     );
     const tokenABalanceBigNumber = ethers.utils.parseUnits(
@@ -115,7 +112,7 @@ const approveTokens = async ({ signer, TokenA, TokenB, amountA, amountB }) => {
     // Replace with desired amounts
     if (tokenABalanceBigNumber.lt(amountADesired)) {
       console.log(`Insufficient ${TokenA.name} balance for approval`);
-      throw new Error(`Insufficient ${TokenA.name} balance for approval`);
+      return Error(`Insufficient ${TokenA.name} balance `);
     }
     if (TokenB) {
       const tokenBContract = new ethers.Contract(
@@ -124,7 +121,7 @@ const approveTokens = async ({ signer, TokenA, TokenB, amountA, amountB }) => {
         signer
       );
       const amountBDesired = ethers.utils.parseUnits(
-        `${amountB}`,
+        `${Number(amountB).toFixed(TokenB.decimals)}`,
         TokenB.decimals
       ); // Replace with desired amounts
       const tokenBBalanceBigNumber = ethers.utils.parseUnits(
@@ -135,7 +132,7 @@ const approveTokens = async ({ signer, TokenA, TokenB, amountA, amountB }) => {
       // Check if the token balances are sufficient for approval
       if (tokenBBalanceBigNumber.lt(amountBDesired)) {
         console.log(`Insufficient ${TokenB.name} balance for approval`);
-        throw new Error(`Insufficient ${TokenB.name} balance for approval`);
+        return Error(`Insufficient ${TokenB.name} balance `);
       }
 
       // Approve tokenB
@@ -152,6 +149,73 @@ const approveTokens = async ({ signer, TokenA, TokenB, amountA, amountB }) => {
     console.log('Insufficient token balance for approval');
   }
 };
+export const getPriceImpact = async ({
+  inputAmount,
+  inputToken,
+  outputToken,
+  pairAddress,
+  signer,
+}) => {
+  const pairContract = new ethers.Contract(pairAddress, pairABI, signer);
+
+  // Get reserves for both tokens
+  const [reserveA, reserveB] = await pairContract.getReserves();
+  const t0 = await pairContract.token0();
+  const token0 = inputToken.address === t0 ? t0 : outputToken.address;
+
+  const decimals0 =
+    inputToken.address === t0 ? inputToken.decimals : outputToken.decimals;
+  const decimals1 = token0 === t0 ? outputToken.decimals : inputToken.decimals;
+  // Convert input amount to BigNumber and format it
+  const amountIn = ethers.utils.parseUnits(
+    inputAmount.toString(),
+    inputToken.decimals
+  );
+  // Define the scaler
+  const scaler = ethers.BigNumber.from(10).pow(18);
+
+  // Define reserves based on input and output tokens
+  // Define reserves based on input and output tokens
+  let reserveIn, reserveOut;
+  if (token0 === inputToken.address) {
+    reserveIn = ethers.utils.parseUnits(reserveA.toString(), decimals0);
+    reserveOut = ethers.utils.parseUnits(reserveB.toString(), decimals1);
+  } else {
+    reserveIn = ethers.utils.parseUnits(reserveB.toString(), decimals0);
+    reserveOut = ethers.utils.parseUnits(reserveA.toString(), decimals1);
+  }
+
+  // Calculate new reserves after swap
+  const newReserveIn = reserveIn.add(amountIn);
+  const newReserveOut = reserveIn
+    .mul(reserveOut)
+    .mul(ethers.constants.WeiPerEther)
+    .div(newReserveIn);
+
+  // Calculate tokens received
+  const tokensReceived = reserveOut
+    .mul(ethers.constants.WeiPerEther)
+    .sub(newReserveOut);
+  const tokeReceiveString = ethers.utils.formatUnits(tokensReceived, decimals1);
+  const tokensReceivedBig = ethers.utils.parseUnits(
+    tokeReceiveString,
+    decimals1
+  );
+  // Calculate price per token
+  const pricePerToken = amountIn
+    .mul(ethers.constants.WeiPerEther)
+    .div(tokensReceivedBig);
+
+  // Calculate price impact
+  const marketPrice = reserveIn
+    .mul(ethers.constants.WeiPerEther)
+    .div(reserveOut);
+  const priceImpact = pricePerToken.sub(marketPrice).div(marketPrice);
+
+  // Convert price impact to percent and return
+  return ethers.utils.formatUnits(priceImpact.mul(100), decimals0);
+};
+
 const getEstimatedTokensOut = async ({
   routerContract,
   amountIn,
@@ -162,7 +226,7 @@ const getEstimatedTokensOut = async ({
 
   // parse the input amount to BigNumber
   const amountInParsed = ethers.utils.parseUnits(
-    amountIn.toString(),
+    Number(amountIn).toFixed(TokenIn.decimals),
     TokenIn.decimals
   );
 

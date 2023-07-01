@@ -12,14 +12,16 @@ import {
   setPoolTokenType,
 } from '../Features/PoolSlice';
 import ConfirmSupplyModal from './ConfirmSupplyModal';
-import { getEstimatedTokensOut } from '../../utils/helpers';
+import { getEstimatedTokensOut, getPairAddress } from '../../utils/helpers';
+import { erc20ABI, pairABI } from '../../contracts';
+import { ethers } from 'ethers';
 
 function CreateAPair({ addLiquidity }) {
   const { displayConfirmSupplyModal, firstInputToken, secondInputToken } =
     useSelector((store) => store.poolFunc);
 
   const dispatch = useDispatch();
-  const { router } = useSelector((s) => s.web3);
+  const { router, factory, signer } = useSelector((s) => s.web3);
 
   const [inputs, setInputs] = useState({
     input1: '',
@@ -29,7 +31,7 @@ function CreateAPair({ addLiquidity }) {
     token1: '',
     token2: '',
   });
-
+  const [liquidityPoolRatio, setLiquidityPoolRatio] = useState(0.0);
   async function updateInputs(e) {
     const { name, value } = e.target;
     setInputs((prevValue) => {
@@ -38,28 +40,77 @@ function CreateAPair({ addLiquidity }) {
         [name]: value,
       };
     });
+    if (name === 'input1') {
+      const pairAddress = await getPairAddress({
+        factoryContract: factory,
+        TokenA: firstInputToken,
+        TokenB: secondInputToken,
+      });
+      const pairContract = new ethers.Contract(pairAddress, pairABI, signer);
+      const reserve = await pairContract.getReserves();
+      const reserve1 = reserve[0].toString();
+      const reserve2 = reserve[1].toString();
+      const t0 = await pairContract.token0();
+      const token0 =
+        firstInputToken.address === t0 ? t0 : secondInputToken.address;
 
-    const f = {
-      address: firstInputToken.token,
-      symbol: firstInputToken.symbol,
-      decimals: firstInputToken.decimals,
-    };
-    const s = {
-      address: secondInputToken.token,
-      symbol: secondInputToken.symbol,
-      decimals: secondInputToken.decimals,
-    };
+      const decimals0 =
+        firstInputToken.address === t0
+          ? firstInputToken.decimals
+          : secondInputToken.decimals;
+      const decimals1 =
+        token0 === t0 ? secondInputToken.decimals : firstInputToken.decimals;
+      let reserve1Big, reserve2Big;
+      if (token0 === firstInputToken.address) {
+        reserve1Big = ethers.utils.parseUnits(reserve1, decimals0);
+        reserve2Big = ethers.utils.parseUnits(reserve2, decimals1);
+      } else {
+        reserve1Big = ethers.utils.parseUnits(reserve2, decimals0);
+        reserve2Big = ethers.utils.parseUnits(reserve1, decimals1);
+      }
+      let reserveRatio = reserve1Big
+        .mul(ethers.constants.WeiPerEther)
+        .div(reserve2Big);
+
+      // Format back to a decimal string
+      const reserveRatioString = ethers.utils.formatUnits(
+        reserveRatio,
+        decimals0
+      );
+
+      setLiquidityPoolRatio(reserveRatioString);
+
+      const input2 = (Number(value) / Number(reserveRatioString)).toString();
+      console.log({
+        value,
+        reserve1: reserve1Big.toString(),
+        reserve2: reserve2Big.toString(),
+        reserveRatioString,
+        input2,
+        token0,
+        firstInputTokenAddress: firstInputToken.address,
+        firstInputTokenName: firstInputToken.name,
+      });
+
+      setInputs((prevValue) => {
+        return {
+          ...prevValue,
+          input2,
+        };
+      });
+    }
+
     const amountPerTokenOut = await getEstimatedTokensOut({
       routerContract: router,
       amountIn: '1',
-      TokenIn: s,
-      TokenOut: f,
+      TokenIn: secondInputToken,
+      TokenOut: firstInputToken,
     });
     const amountPerTokenIn = await getEstimatedTokensOut({
       routerContract: router,
       amountIn: '1',
-      TokenIn: f,
-      TokenOut: s,
+      TokenIn: firstInputToken,
+      TokenOut: secondInputToken,
     });
     setTokensPerUnit({
       token1: amountPerTokenOut,
@@ -77,6 +128,7 @@ function CreateAPair({ addLiquidity }) {
             firstInputToken,
             secondInputToken,
             addLiquidity,
+            liquidityPoolRatio,
           }}
         />
       )}
@@ -160,7 +212,7 @@ function CreateAPair({ addLiquidity }) {
                 className="w-[50%] sm:w-[230px] pr-2 bg-[#152F30] outline-none text-[20px] sm:text-[34px]"
               />
 
-              {secondInputToken.token ? (
+              {secondInputToken.address ? (
                 <div
                   className="flex items-center cursor-pointer"
                   onClick={() => {
@@ -196,7 +248,8 @@ function CreateAPair({ addLiquidity }) {
               )}
             </div>
             <p>
-              Balance: {secondInputToken.token ? secondInputToken.balance : 0.0}
+              Balance:{' '}
+              {secondInputToken.address ? secondInputToken.balance : 0.0}
             </p>
           </div>
         </div>
@@ -206,13 +259,18 @@ function CreateAPair({ addLiquidity }) {
         !inputs.input1.includes(' ') ? (
           <div className="my-8 text-[#DCDCDC]">
             <p className="flex justify-between items-center mb-5">
-              <span>Share of Pool</span>
-              <span>0.14%</span>
+              <span>Liquidity Pool Ratio</span>
+              <span>
+                {Number(liquidityPoolRatio) > 1
+                  ? Number(liquidityPoolRatio).toExponential(7)
+                  : Number(liquidityPoolRatio).toFixed(7)}
+                %
+              </span>
             </p>
             <p className="flex justify-between items-center">
               <span>Price</span>
               <span className="flex items-center">
-                {Number(tokensPerUnit.token1).toFixed(6)}
+                {Number(tokensPerUnit.token1).toFixed()}
                 {`${firstInputToken.symbol}`} per 1{secondInputToken.symbol}
                 <i className="ml-2 rotate-[300deg]">
                   <MdLoop />

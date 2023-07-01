@@ -9,6 +9,7 @@ function ConfirmSupplyModal({
   firstInputToken,
   secondInputToken,
   addLiquidity,
+  liquidityPoolRatio,
 }) {
   const dispatch = useDispatch();
 
@@ -64,8 +65,13 @@ function ConfirmSupplyModal({
             </div>
           </div>
           <div className="flex justify-between mb-4">
-            <p>Share of Pool</p>
-            <p>0.14%</p>
+            <p>Liquidity Pool Ratio</p>
+            <p>
+              {Number(liquidityPoolRatio) > 1
+                ? Number(liquidityPoolRatio).toExponential(7)
+                : Number(liquidityPoolRatio).toFixed(7)}
+              %
+            </p>
           </div>
         </section>
 
@@ -75,15 +81,11 @@ function ConfirmSupplyModal({
             addLiquidity(
               {
                 ...firstInputToken,
-
-                address: firstInputToken.token,
-                name: firstInputToken.name,
                 value: inputs.input1,
               },
               {
                 ...secondInputToken,
-                address: secondInputToken.token,
-                name: secondInputToken.name,
+
                 value: inputs.input2,
               }
             )

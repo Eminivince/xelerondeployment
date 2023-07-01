@@ -40,6 +40,8 @@ import {
   calculatePriceImpact,
   createPair,
   getEstimatedTokensOut,
+  getPairAddress,
+  getPriceImpact,
 } from '../utils/helpers';
 
 import TransactionSumbmitted from '../components/Modal/TransactionSumbmitted';
@@ -180,14 +182,19 @@ function Swap() {
 
     setSwapPrice(amountPerTokenOut);
     setFetchingPrice(false);
-    const pairAddress = await createPair({
+    const pairAddress = await getPairAddress({
       factoryContract,
       TokenA: swapInputs.from,
       TokenB: swapInputs.to,
     });
-    const priceImpact = await calculatePriceImpact({
-      amountIn: value,
-      TokenA: swapInputs.from,
+    if (pairAddress === '0x0000000000000000000000000000000000000000') {
+      return toast.error('Pair does not exist');
+    }
+    console.log({ pairAddress });
+    const priceImpact = await getPriceImpact({
+      inputAmount: value,
+      inputToken: swapInputs.from,
+      outputToken: swapInputs.to,
       pairAddress,
       signer,
     });

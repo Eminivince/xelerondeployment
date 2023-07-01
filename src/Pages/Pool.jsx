@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import AltNav from '../components/AltNav';
 import SettingsModal from '../components/Modal/SettingsModal';
@@ -7,22 +7,23 @@ import ImportTokenModal from '../components/Pool/ImportTokenModal';
 import Liquidity from '../components/Pool/Liquidity';
 import PoolTokenModal from '../components/Pool/PoolTokenModal';
 import { ethers } from 'ethers';
-import { useAccount, useWalletClient } from 'wagmi';
-import {
-  UniV2Router,
-  routerABI,
-  erc20ABI,
-  Factory,
-  factoryABI,
-} from '../contracts';
+import { useAccount } from 'wagmi';
+import { UniV2Router, routerABI, Factory, factoryABI } from '../contracts';
 import Web3Modal from 'web3modal';
-import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { approveTokens, createPair } from '../utils/helpers';
 import {
   setFactory,
   setRouter,
   setSigner,
 } from '../components/Features/web3Slice';
+import { collection, getDocs } from 'firebase/firestore';
+import { db } from '../firebase';
+import { setAllToken } from '../components/Features/TokenSlice';
+import {
+  removeConfirmSupplyModal,
+  removeCreateAPair,
+} from '../components/Features/PoolSlice';
+import { toast } from 'react-toastify';
 
 function Pool() {
   const { transactionSettingsModal } = useSelector((store) => store.modal);
@@ -34,10 +35,7 @@ function Pool() {
 
   const { signer, router, factory } = useSelector((state) => state.web3);
   const { address, isConnected } = useAccount();
-  const [tokenBalances, setTokenBalances] = useState({
-    tokenA: 0,
-    tokenB: 0,
-  });
+
   const dispatch = useDispatch();
   useEffect(() => {
     if (!isConnected) {
@@ -66,20 +64,23 @@ function Pool() {
       TokenA,
       TokenB,
     });
-    await approveTokens({
+    const err = await approveTokens({
       signer,
       amountA: TokenA.value,
       amountB: TokenB.value,
       TokenA,
       TokenB,
     });
+    if (err) {
+      return toast.error(err.message);
+    }
 
     const amountADesired = ethers.utils.parseUnits(
-      TokenA.value,
+      Number(TokenA.value).toFixed(TokenA.decimals),
       TokenA.decimals
     ); // Replace with desired amounts
     const amountBDesired = ethers.utils.parseUnits(
-      TokenB.value,
+      Number(TokenB.value).toFixed(TokenB.decimals),
       TokenB.decimals
     ); // Replace with desired amounts
     const amountAMin = ethers.utils.parseUnits(
@@ -108,10 +109,24 @@ function Pool() {
       console.log(`Transaction hash: ${tx.hash}`);
       const receipt = await tx.wait();
       console.log(`Transaction was mined in block ${receipt.blockNumber}`);
+      // Hide all Modals
+      dispatch(removeCreateAPair());
+      dispatch(removeConfirmSupplyModal());
+      toast.success('Liquidity added successfully');
     } catch (err) {
       console.error('Error adding liquidity', err);
     }
   };
+
+  useEffect(() => {
+    (async () => {
+      const querySnapshot = await getDocs(collection(db, 'tokens'));
+      const temp = await Promise.all(
+        querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      );
+      dispatch(setAllToken(temp));
+    })();
+  }, [dispatch]);
 
   const current = 'pool';
   return (
