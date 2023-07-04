@@ -19,7 +19,7 @@ function Navbar() {
             <li className='lg:mb-0 mb-6 hover:opacity-70'><Link>Community</Link></li>
             <li className='lg:mb-0 mb-6 hover:opacity-70'><Link>About</Link></li>
             <li className='lg:hidden block text-[16px] w-full mb-5'><Link><button className='h-[60px] text-[#69CED1] border border-[#69CED1] rounded-[14px] bg-[#011718] w-full hover:opacity-50'>Join Telegram</button></Link></li>
-            <li className='lg:hidden block text-[16px] w-full'><Link><button className='h-[60px] bg-[#69CED1] rounded-[14px] text-[#011718] w-full hover:opacity-50'>Get Started Now</button></Link></li>
+            <li className='lg:hidden block text-[16px] w-full'><Link to='/swap'><button className='h-[60px] bg-[#69CED1] rounded-[14px] text-[#011718] w-full hover:opacity-50'>Swap</button></Link></li>
         </ul>
         <Link className='hidden lg:block'><button className='h-[60px] bg-[#69CED1] rounded-[14px] text-[#011718] px-7'>Join Telegram</button></Link>
 

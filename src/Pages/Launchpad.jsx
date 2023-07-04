@@ -57,10 +57,11 @@ const Launchpad = () => {
     </div>
   ));
 
+  const current = 'launchpad'
   return (
     <div className="text-white">
       {/* <Navbar /> */}
-      <AltNav />
+      <AltNav current={current}/>
       <div className="launchpad--container md:px-20 flex flex-col justify-center items-center md:pt-[40px] pt-[15px]">
         <h1 className="font-bold md:text-7xl text-3xl mb-4">
           <span className="text-[#69CED1]">Xeleron</span> Launchpad

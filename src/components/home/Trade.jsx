@@ -11,7 +11,7 @@ function Trade() {
     <section className='text-white bg-[rgba(105,206,209,0.15)] py-10 md:py-16'>
         <h5 className="text-center hidden sm:block text-[36px]">Xeleron Ecosystem</h5>
         <div className='relative mb-[80px]'>
-            <h1 className='text-center text-[36px] sm:text-[45px] md:text-[64px] leading-[45px] sm:leading-[90%] md:leading-[125%] relative'>Trade . <span className='text-[#69CED1] relative'>Earn <img src={Line1} alt='line' className='absolute -left-9 -bottom-3 min-w-[150%]' /></span> . Lend</h1>
+            <h1 className='text-center text-[36px] sm:text-[45px] md:text-[64px] leading-[45px] sm:leading-[90%] md:leading-[125%] relative'>Trade . <span className='text-[#69CED1] relative'>Earn <img src={Line1} alt='line' className='absolute -left-9 -bottom-3 min-w-[150%] hidden md:block' /></span> . Lend</h1>
         </div>
 
         <div className='flex justify-center px-4 sm:px-0'>
