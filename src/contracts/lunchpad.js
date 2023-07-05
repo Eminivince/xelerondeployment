@@ -1,4 +1,4 @@
 import ABI from './ICO.abi.json';
-export const ICOAddress = '0x58221012683aB28c1e9b73ab82ca8F788fCCa5cC';
+export const ICOAddress = '0xda8eB1cdaB3e2B8B3c8D9b2023a2FDDBfcC8a54c';
 export const ICO_ABI = ABI;
-export const ICO_Price = 1000; // 1 Eth => 1000XLR
+export const ICO_Price = 12000; // 1 Eth => 12000XLR
