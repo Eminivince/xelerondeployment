@@ -12,12 +12,16 @@ import { FaArrowDown } from 'react-icons/fa';
 import Countdown from './Countdown';
 import { useDispatch, useSelector } from 'react-redux';
 
+
 import Web3Modal from 'web3modal';
 import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
 import { setSigner } from '../components/Features/web3Slice';
 import { ICOAddress, ICO_ABI, ICO_Price } from '../contracts/lunchpad';
 import { toast } from 'react-toastify';
+import LaunchpadModal from '../components/Modal/LaunchpadModal';
+import TransactionSumbmitted from '../components/Modal/TransactionSumbmitted';
+
 const Launchpad = () => {
   const idoArray = [
     {
@@ -60,25 +64,7 @@ const Launchpad = () => {
     });
   }, [dispatch, isConnected]);
 
-  const mappedArray = idoData.map((idoData) => (
-    <div className="border-2 p-3 rounded-xl">
-      <div className="flex justify-between pb-3">
-        <div>{idoData.date}</div>
-        <div>Hardcap: {idoData.fundraisingAmount}</div>
-      </div>
-      <img src={idoData.image} alt="nft" className="w-80 mb-3 rounded-xl" />
-      <div className="md:flex  justify-between items-center">
-        <div className="socialls flex w-6 space-x-2">
-          <img src={TwitterIcon} alt="twitter" />
-          <img src={TelegramIcon} alt="telegram" />
-          <img src={DiscordIcon} alt="discord" />
-        </div>
-        <div>
-          <p>Coming Soon</p>
-        </div>
-      </div>
-    </div>
-  ));
+  
   const [value, setValue] = useState({
     amountIn: 0,
     amountOut: 0,
@@ -98,6 +84,7 @@ const Launchpad = () => {
     }
     setValue({ amountIn: v1, amountOut: v2 });
   }
+  
   async function handleContribution() {
     if (!ICO_Contract) return toast.error('Please Connect Wallet');
     const tx = await ICO_Contract.buy({
@@ -107,10 +94,17 @@ const Launchpad = () => {
     await tx.wait();
     toast.success('Transaction Success');
   }
+
+  const [modal, setModal] = useState(false)
+  function displayLauchpadModal(){
+    setModal(true)
+  }
+
   return (
     <div className="text-white">
       {/* <Navbar /> */}
       <AltNav current={current} />
+      <div className='pt-[100px]'>
       <div className="launchpad--container md:px-20 flex flex-col justify-center items-center md:pt-[40px] pt-[15px]">
         <h1 className="font-bold md:text-7xl text-3xl mb-4">
           <span className="text-[#69CED1]">Xeleron</span> Launchpad
@@ -121,9 +115,7 @@ const Launchpad = () => {
           and be at the forefront of decentralized finance. Join us and unleash
           the future of finance today
         </p>
-        <div className="card--container flex md:space-x-5 space-x-2 mx-8 mb-8 justify-center">
-          {mappedArray}
-        </div>
+       
 
         <div className="Ido--detailcard flex flex-col items-center md:p-6 p-4 md:ring-4 ring-2 ring-[#69CED1] h-content md:w-full w-[90%] rounded-md border mb-8">
           <div className="flex w-[100%] justify-between mb-4">
@@ -166,7 +158,8 @@ const Launchpad = () => {
 
           {/* Presale Container */}
 
-          <div className="presale--proper bg-[#16393b] md:p-10 p-4 rounded-lg flex flex-col  justify-center items-center">
+          <div className="presale--proper bg-[#16393b] md:p-10 p-4 rounded-lg flex flex-col  justify-center items-center relative">
+            {modal && <LaunchpadModal setModal={setModal}/>}
             <div className="flex flex-col md:flex-row w-full space-x-6">
               <div className="basis-1/2 flex flex-col justify-center items-center">
                 <div>
@@ -196,7 +189,7 @@ const Launchpad = () => {
                       <img
                         src={ethIcon}
                         className="w-6 absolute left-16"
-                        alt="tokenicon"
+                        alt="tokenicon "
                       />
                     </div>
                   </div>
@@ -230,7 +223,7 @@ const Launchpad = () => {
                 <button
                   type="button"
                   className="bg-[#69CED1] md:p-3 p-2  rounded-lg font-semibold text-xl hover:border hover:text-white text-black hover:bg-[#16393b] mb-4"
-                  onClick={handleContribution}
+                  onClick={displayLauchpadModal}
                 >
                   CONTRIBUTE
                 </button>
@@ -293,6 +286,7 @@ const Launchpad = () => {
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );

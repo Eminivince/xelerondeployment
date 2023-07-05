@@ -363,7 +363,9 @@ function Swap() {
 
   return (
     <div className="text-white bg-[#0E1E1F] min-h-screen relative px-3">
-      <AltNav current={current} />
+    <AltNav current={current} />
+    <div className='pt-[100px]'>
+      
 
       {transactionSettingsModal && <SettingsModal />}
       {tokenModal && <TokenModal />}
@@ -732,6 +734,7 @@ function Swap() {
           </button>
         </section>
       )}
+    </div>
     </div>
   );
 }

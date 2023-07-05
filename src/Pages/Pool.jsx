@@ -132,6 +132,7 @@ function Pool() {
   return (
     <main className="text-white relative min-h-[100vh]">
       <AltNav current={current} />
+      <div className="pt-[100px]">
       {displayPoolTokenModal && <PoolTokenModal />}
       {displayImportTokenFirstInput && <ImportTokenModal />}
       {transactionSettingsModal && <SettingsModal />}
@@ -140,6 +141,7 @@ function Pool() {
       ) : (
         <CreateAPair addLiquidity={addLiquidity} />
       )}
+      </div>
     </main>
   );
 }
