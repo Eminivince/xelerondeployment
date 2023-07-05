@@ -10,7 +10,14 @@ import AltNav from '../components/AltNav';
 import ethIcon from '../images/icons8-ethereum.svg';
 import { FaArrowDown } from 'react-icons/fa';
 import Countdown from './Countdown';
+import { useDispatch, useSelector } from 'react-redux';
 
+import Web3Modal from 'web3modal';
+import { useAccount } from 'wagmi';
+import { ethers } from 'ethers';
+import { setSigner } from '../components/Features/web3Slice';
+import { ICOAddress, ICO_ABI, ICO_Price } from '../contracts/lunchpad';
+import { toast } from 'react-toastify';
 const Launchpad = () => {
   const idoArray = [
     {
@@ -34,8 +41,24 @@ const Launchpad = () => {
   ];
 
   const [idoData, setIdoData] = useState(idoArray);
+  const { signer } = useSelector((state) => state.web3);
+  const dispatch = useDispatch();
+  const { isConnected } = useAccount();
+  const [ICO_Contract, setICO_Contract] = useState(null);
+  useEffect(() => {
+    const web3Modal = new Web3Modal();
+    web3Modal.connect().then(async (provider) => {
+      const web3Provider = new ethers.providers.Web3Provider(provider);
+      const signer = web3Provider.getSigner();
 
-  console.log(idoData);
+      dispatch(setSigner(signer));
+
+      if (!isConnected) return toast.error('Wallet no connected');
+      else if (!signer) return toast.error('Prease Reconnect Wallet');
+      const ICO_Contract = new ethers.Contract(ICOAddress, ICO_ABI, signer);
+      setICO_Contract(ICO_Contract);
+    });
+  }, [dispatch, isConnected]);
 
   const mappedArray = idoData.map((idoData) => (
     <div className="border-2 p-3 rounded-xl">
@@ -56,12 +79,38 @@ const Launchpad = () => {
       </div>
     </div>
   ));
+  const [value, setValue] = useState({
+    amountIn: 0,
+    amountOut: 0,
+  });
+  const current = 'launchpad';
+  function handleValueChange(e) {
+    const { value, name } = e.target;
 
-  const current = 'launchpad'
+    let v1, v2;
+
+    if (name === 'amountIn') {
+      v2 = ICO_Price * +value;
+      v1 = +value;
+    } else if (name === 'amountOut') {
+      v1 = ICO_Price * +value;
+      v2 = +value;
+    }
+    setValue({ amountIn: v1, amountOut: v2 });
+  }
+  async function handleContribution() {
+    if (!ICO_Contract) return toast.error('Please Connect Wallet');
+    const tx = await ICO_Contract.buy({
+      value: ethers.utils.parseEther(value.amountIn.toString()),
+      gasLimit: 250000,
+    });
+    await tx.wait();
+    toast.success('Transaction Success');
+  }
   return (
     <div className="text-white">
       {/* <Navbar /> */}
-      <AltNav current={current}/>
+      <AltNav current={current} />
       <div className="launchpad--container md:px-20 flex flex-col justify-center items-center md:pt-[40px] pt-[15px]">
         <h1 className="font-bold md:text-7xl text-3xl mb-4">
           <span className="text-[#69CED1]">Xeleron</span> Launchpad
@@ -86,7 +135,11 @@ const Launchpad = () => {
             </div>
           </div>
           <div className="flex flex-col items-center">
-            <img src={Logo} className="md:w-24 md:h-24 w-12 h-12 mb-4" alt="xeleron" />
+            <img
+              src={Logo}
+              className="md:w-24 md:h-24 w-12 h-12 mb-4"
+              alt="xeleron"
+            />
             <h1 className="font-bold md:text-8xl text-4xl mb-4">Xeleron</h1>
             <p className="md:text-lg text-center mb-4 md:w-[75%]">
               At Xeleron, we curate a handpicked selection of the most promising
@@ -115,7 +168,7 @@ const Launchpad = () => {
 
           <div className="presale--proper bg-[#16393b] md:p-10 p-4 rounded-lg flex flex-col  justify-center items-center">
             <div className="flex flex-col md:flex-row w-full space-x-6">
-              <div className='basis-1/2 flex flex-col justify-center items-center'>
+              <div className="basis-1/2 flex flex-col justify-center items-center">
                 <div>
                   <h1 className="mb-2 font-bold md:text-4xl text-2xl text-white">
                     XELERON
@@ -133,9 +186,12 @@ const Launchpad = () => {
                     <div className="flex space-x-28 items-center relative">
                       <input
                         className="p-3 rounded-md border-gray-950 border-2 text-black font-semibold"
-                        type="text"
+                        type="number"
                         id="amountIn"
                         placeholder="Value"
+                        name="amountIn"
+                        onChange={handleValueChange}
+                        value={value.amountIn}
                       />
                       <img
                         src={ethIcon}
@@ -155,9 +211,12 @@ const Launchpad = () => {
                     <div className="flex space-x-28 items-center relative mb-3">
                       <input
                         className="p-3 rounded-md border-gray-950 border-2 text-black font-semibold"
-                        type="text"
+                        type="number"
                         id="amountIn"
                         placeholder="Value"
+                        name="amountOut"
+                        onChange={handleValueChange}
+                        value={value.amountOut}
                       />
                       <img
                         src={Logo}
@@ -171,37 +230,68 @@ const Launchpad = () => {
                 <button
                   type="button"
                   className="bg-[#69CED1] md:p-3 p-2  rounded-lg font-semibold text-xl hover:border hover:text-white text-black hover:bg-[#16393b] mb-4"
+                  onClick={handleContribution}
                 >
                   CONTRIBUTE
                 </button>
               </div>
 
               <div className="basis-1/2 info--container text-lg">
-                <h1 className="mb-2 font-bold md:text-4xl text-2xl text-white text-center">OFFERING DETAILS</h1>
-                <hr className='mb-10'/>
-                <div className='mb-4'>
-                    <h1 className='font-bold text-xl mb-2'>START TIME</h1>
-                    <h1><span className='text-[#69CED1] font-semibold'>Date: </span>30th December, 2023</h1>
-                    <h1><span className='text-[#69CED1] font-semibold'>Time: </span>6:00pm</h1>
+                <h1 className="mb-2 font-bold md:text-4xl text-2xl text-white text-center">
+                  OFFERING DETAILS
+                </h1>
+                <hr className="mb-10" />
+                <div className="mb-4">
+                  <h1 className="font-bold text-xl mb-2">START TIME</h1>
+                  <h1>
+                    <span className="text-[#69CED1] font-semibold">Date: </span>
+                    30th December, 2023
+                  </h1>
+                  <h1>
+                    <span className="text-[#69CED1] font-semibold">Time: </span>
+                    6:00pm
+                  </h1>
                 </div>
                 <div>
-                    <h1 className='font-bold text-xl mb-2'>END TIME</h1>
-                    <h1><span className='text-[#69CED1] font-semibold'>Date: </span>31st December, 2023</h1>
-                    <h1><span className='text-[#69CED1] font-semibold'>Time: </span>6:00pm</h1>
+                  <h1 className="font-bold text-xl mb-2">END TIME</h1>
+                  <h1>
+                    <span className="text-[#69CED1] font-semibold">Date: </span>
+                    31st December, 2023
+                  </h1>
+                  <h1>
+                    <span className="text-[#69CED1] font-semibold">Time: </span>
+                    6:00pm
+                  </h1>
                 </div>
 
                 <div>
-                    <h1><span className='text-[#69CED1] font-semibold'>Token CA: </span></h1>
-                    <h1><span className='text-[#69CED1] font-semibold'>Offering CA: </span> </h1>
-                    <h1> <span className='text-[#69CED1] font-semibold'>Total Token Offered:</span>  {4000}XLR</h1>
-                    <h1><span className='text-[#69CED1] font-semibold'>Price: </span>1 ETH = 1000XLR</h1>
+                  <h1>
+                    <span className="text-[#69CED1] font-semibold">
+                      Token CA:{' '}
+                    </span>
+                  </h1>
+                  <h1>
+                    <span className="text-[#69CED1] font-semibold">
+                      Offering CA:{' '}
+                    </span>{' '}
+                  </h1>
+                  <h1>
+                    {' '}
+                    <span className="text-[#69CED1] font-semibold">
+                      Total Token Offered:
+                    </span>{' '}
+                    {4000}XLR
+                  </h1>
+                  <h1>
+                    <span className="text-[#69CED1] font-semibold">
+                      Price:{' '}
+                    </span>
+                    1 ETH = 1000XLR
+                  </h1>
                 </div>
-                
               </div>
             </div>
           </div>
-
-
         </div>
       </div>
     </div>
