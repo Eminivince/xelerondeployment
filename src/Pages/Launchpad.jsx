@@ -280,13 +280,13 @@ const Launchpad = () => {
                     <span className="text-[#69CED1] font-semibold">
                       Total Token Offered:
                     </span>{' '}
-                    {4000}XLR
+                    {600000}XLR
                   </h1>
                   <h1>
                     <span className="text-[#69CED1] font-semibold">
                       Price:{' '}
                     </span>
-                    1 ETH = 1000XLR
+                    1 ETH = 12000XLR
                   </h1>
                 </div>
               </div>
