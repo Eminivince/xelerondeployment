@@ -200,7 +200,13 @@ const Launchpad = () => {
             {/* Presale Container */}
 
             <div className="presale--proper bg-[#16393b] md:p-10 p-4 rounded-lg flex flex-col  justify-center items-center relative">
-              {modal && <LaunchpadModal setModal={setModal} value={value} />}
+              {modal && (
+                <LaunchpadModal
+                  setModal={setModal}
+                  value={value}
+                  setValue={setValue}
+                />
+              )}
               <div className="flex flex-col md:flex-row w-full space-x-6">
                 <div className="basis-1/2 flex flex-col justify-center items-center">
                   <div>
