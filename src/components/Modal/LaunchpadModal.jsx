@@ -1,15 +1,21 @@
 import React from 'react';
 import { AiOutlineClose } from 'react-icons/ai';
 import Swapdone from '../../images/swapDone.png';
-import { TokenA } from '../../contracts';
+import { addTokenToWallet } from '../../utils/helpers';
 
-
-function LaunchpadModal({setModal}) {
-
-  function closeLaunchpadModal(){
-    setModal(false)
+function LaunchpadModal({ setModal, value, setValue }) {
+  function closeLaunchpadModal() {
+    setModal(false);
+    setValue({ amountIn: '', amountOut: '' });
   }
-  
+  async function addToWallet() {
+    await addTokenToWallet(
+      '0x89358d08756002B19313AA7266928fa61868Ee6d',
+      'XLR',
+      18
+    );
+  }
+
   return (
     <div>
       <div className="bg-[#061111B8] fixed w-full h-[100vh] min-h-[100vh] top-0 left-0 backdrop-blur-[4px] z-50"></div>
@@ -18,7 +24,6 @@ function LaunchpadModal({setModal}) {
           <i
             className="ml-auto block w-fit cursor-pointer"
             onClick={closeLaunchpadModal}
-            
           >
             <AiOutlineClose />
           </i>
@@ -30,10 +35,13 @@ function LaunchpadModal({setModal}) {
         />
         <p className="text-center mb-4">Transaction Submitted</p>
         <p className="text-center">
-          Contributing {1} {'ETH '}
-          for {12000} {'XLR'}
+          Contributing {value.amountIn} {'ETH '}
+          for {value.amountOut} {'XLR'}
         </p>
-        <button className="bg-[#1B595B] text-[#69CED1] w-[95%] block mx-auto h-[48px] rounded-[100px] mt-12">
+        <button
+          className="bg-[#1B595B] text-[#69CED1] w-[95%] block mx-auto h-[48px] rounded-[100px] mt-12"
+          onClick={addToWallet}
+        >
           Add {'Token'} to Wallet
         </button>
       </div>

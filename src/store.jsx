@@ -22,7 +22,12 @@ export const store = configureStore({
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredPaths: ['web3.signer', 'web3.factory', 'web3.router'],
+        ignoredPaths: [
+          'web3.signer',
+          'web3.factory',
+          'web3.router',
+          'web3.staticSigner',
+        ],
         ignoredActions: [
           'web3/setSigner',
           'web3/setRouter',
