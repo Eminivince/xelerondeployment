@@ -33,7 +33,10 @@ function Footer() {
 
             <div className='w-1/2 md:w-fit mt-7 md:mt-0'>
                 <h5 className='text-[#69CED1] mb-4 text-[20px]'>Developer</h5>
+                <a href='https://github.com/'>
                 <p className='mb-2'>GitHub</p>
+                </a>
+                
                 <p className='mb-2'>Audit</p>
             </div>
 
@@ -46,10 +49,18 @@ function Footer() {
 
             <div className='w-1/2 md:w-fit mt-7 md:mt-0'>
                 <h5 className='text-[#69CED1] mb-4 text-[20px]'>Community</h5>
+                <a href='https://twitter.com/XeleronFi'>
                 <p className='mb-2'>Twitter</p>
-                <p className='mb-2'>Discord</p>
-                <p className='mb-2'>Medium</p>
+                </a>
+                <a href='https://t.me/XeleronFinance'>
                 <p className='mb-2'>Telegram</p>
+                </a>
+                <a href='http://xeleronfi.medium.com'>
+                <p className='mb-2'>Medium</p>
+                </a>
+                <a href='https://discord.com/'>
+                <p className='mb-2'>Discord</p>
+                </a>
             </div>
         </div>
     </footer>

@@ -4,7 +4,7 @@ import Xeleron from '../images/xeleronlogo.png';
 import { FaBars } from 'react-icons/fa'
 import { AiOutlineClose } from 'react-icons/ai'
 import { AiFillTwitterCircle } from 'react-icons/ai';
-import { BsTelegram, BsDiscord } from 'react-icons/bs';
+import { BsTelegram, BsDiscord, BsMedium } from 'react-icons/bs';
 
 function Navbar() {
   const [toggleMobileNav, setToggleMobileNav] = useState(true)
@@ -42,7 +42,10 @@ function Navbar() {
       <a href='https://discord.com/'>Discord</a>
       </div>
       <div className='flex items-center space-x-3 hover:font-semibold'>
+        <BsMedium />
+      <a href='http://xeleronfi.medium.com'>Medium</a>
       </div>
+      
       
     </div>
   )}
