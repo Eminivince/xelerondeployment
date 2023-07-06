@@ -26,17 +26,14 @@ function Footer() {
         <div className='flex w-full md:w-8/12 justify-between flex-wrap'>
             <div className='w-1/2 md:w-fit mt-7 md:mt-0'>
                 <h5 className='text-[#69CED1] mb-4 text-[20px]'>Network</h5>
-                <p className='mb-2'>Etherum</p>
-                <p className='mb-2'>Polygon</p>
-                <p className='mb-2'>Salana</p>
-                <p className='mb-2'>PolkaDot</p>
+                <p className='mb-2'>Ethereum</p>
+                <p className='mb-2'>zKsync Era</p>
             </div>
 
             <div className='w-1/2 md:w-fit mt-7 md:mt-0'>
                 <h5 className='text-[#69CED1] mb-4 text-[20px]'>Developer</h5>
+                <p className='mb-2'>GitHub</p>
                 <p className='mb-2'>Audit</p>
-                <p className='mb-2'>Bug Bounty</p>
-                <p className='mb-2'>Git</p>
             </div>
 
             <div className='w-1/2 md:w-fit mt-7 md:mt-0'>

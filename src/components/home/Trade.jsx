@@ -20,28 +20,28 @@ function Trade() {
                     <img src={Swap} alt="swap Icon" className='w-[82px] h-[82px] self-center'/>
                     <h3 className='self-center text-[30px] text-[#2C3131]'>Swap</h3>
                     <p className='text-center text-[#1C3738]'>Trade effortlessly on Xeleron and take full advantage of the lowest fees and deep liquidity across numerous pairs for an optimized trading experience</p>
-                    <Link to="/swap"><button className='w-full bg-[#001C1D] h-[60px] rounded-[16px] text-[#69CED1]'>Swap Now</button></Link>
+                    <Link to="/swap"><button className='w-full bg-[#001C1D] h-[60px] rounded-[16px] text-[#69CED1] hover:bg-[#183b3b] duration-300'>Swap Now</button></Link>
                 </div>
 
                 <div className='border border-[#69CED1] w-full sm:w-[327px] h-[377px] rounded-[36px] pt-[76px] pb-4 px-4 sm:px-8 flex flex-col justify-between ml-auto mt-7 md:mt-0 order-2'>
                     <img src={Farm} alt="swap Icon" className='w-[82px] h-[82px] self-center'/>
                     <h3 className='self-center text-[30px]'>Farm</h3>
-                    <p className='text-center'>Maximize Earnings with Sustainable High-Yield Farms with up to 10,000% APR.</p>
-                    <Link><button className='w-full text-[#1C3738] h-[60px] rounded-[16px] bg-[#69CED1]'>Coming Soon</button></Link>
+                    <p className='text-center'>Maximize Earnings in Dynamic High-Yield Farms with highly sustainable APR.</p>
+                    <Link><button className='w-full text-[#1C3738] h-[60px] rounded-[16px] bg-[#69CED1] hover:bg-[#1c4b4b] duration-300 hover:text-white'>Coming Soon</button></Link>
                 </div>
 
                 <div className='border border-[#69CED1] w-full sm:w-[327px] h-[377px] rounded-[36px] pt-[46px] pb-4 px-4 sm:px-8 flex flex-col justify-between mt-7 md:mt-[30px] order-4 md:order-3'>
                     <img src={Launch} alt="swap Icon" className='w-[82px] h-[82px] self-center'/>
                     <h3 className='self-center text-[30px]'>Launchpad</h3>
-                    <p className='text-center'>Stay ahead with Xeleron's Launchpad, Secure Early Access to Vetted and High-Potential Projects on zkSync</p>
-                    <Link><button className='w-full text-white opacity-[0.6] h-[60px] rounded-[16px] bg-[#092223]'>List Project</button></Link>
+                    <p className='text-center'>Stay ahead with Xeleron's Launchpad, Secure Early Access to Vetted and High-Potential Projects on Arbitrum</p>
+                    <Link><button className='w-full text-white opacity-[0.6] h-[60px] rounded-[16px] bg-[#092223] hover:bg-[#091717] duration-300'>Browse Projects</button></Link>
                 </div>
 
                 <div className='bg-[#69CED1] w-full sm:w-[327px] h-[438px] rounded-[36px] pt-[76px] pb-4 px-4 sm:px-8 flex flex-col justify-between ml-auto mt-7 md:-mt-[30px] order-3 md:order-4'>
                     <img src={Lend} alt="swap Icon" className='w-[82px] h-[82px] self-center'/>
                     <h3 className='self-center text-[30px] text-[#092223]'>Lend</h3>
                     <p className='text-center text-[#011718]'>Maximize earnings with Xeleron. Use your assets as collateral to lend and amplify earning potential. Optimize your DeFi strategy now</p>
-                    <Link><button className='w-full bg-[#092223] h-[60px] rounded-[16px] text-white opacity-[0.6]'>Coming Soon</button></Link>
+                    <Link><button className='w-full bg-[#092223] h-[60px] rounded-[16px] text-white hover:bg-[#1c4b4b] duration-300 hover:text-white'>Coming Soon</button></Link>
                 </div>
             </div>
         </div>
