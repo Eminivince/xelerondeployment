@@ -282,9 +282,9 @@ const Launchpad = () => {
                   <button
                     type="button"
                     className="bg-[#69CED1] md:p-3 p-2  rounded-lg font-semibold text-xl hover:border hover:text-white text-black hover:bg-[#16393b] mb-4"
-                    onClick={
-                      isConnected ? handleContribution : checkIsConnected
-                    }
+                    // onClick={
+                    //   isConnected ? handleContribution : checkIsConnected
+                    // }
                     disabled={!value.amountIn || !value.amountOut}
                   >
                     {isConnected ? 'CONTRIBUTE' : 'CONNECT WALLET'}
