@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import Xeleron from '../images/xeleronlogo.png';
 import { FaBars } from 'react-icons/fa'
 import { AiOutlineClose } from 'react-icons/ai'
-import { BsFillArrowRightCircleFill } from 'react-icons/bs';
 import { AiFillTwitterCircle } from 'react-icons/ai';
 import { BsTelegram, BsDiscord } from 'react-icons/bs';
 
@@ -50,7 +49,7 @@ function Navbar() {
 </li>
 
             <li className='lg:mb-0 mb-6 hover:opacity-70'><a href='https://github.com/'>Developer</a></li>
-            <li className='lg:mb-0 mb-6 hover:opacity-70'  ><Link>Network</Link></li>
+            <li onClick={scrollToElement} className='lg:mb-0 mb-6 hover:opacity-70'  ><Link>Network</Link></li>
             <li className='lg:mb-0 mb-6 hover:opacity-70'><a href='https://xeleron.gitbook.io/xeleron/' >Documentation</a></li>
             <li className='lg:hidden block text-[16px] w-full mb-5'><a href='https://t.me/XeleronFinance'><button className='h-[60px] text-[#69CED1] border border-[#69CED1] rounded-[14px] bg-[#011718] w-full hover:opacity-50'>Join Telegram</button></a></li>
             <li className='lg:hidden block text-[16px] w-full'><Link to='/swap'><button className='h-[60px] bg-[#69CED1] rounded-[14px] text-[#011718] w-full hover:opacity-50'>Swap</button></Link></li>

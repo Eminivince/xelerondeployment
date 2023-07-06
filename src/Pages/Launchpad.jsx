@@ -156,10 +156,10 @@ const Launchpad = () => {
           <div className="Ido--detailcard flex flex-col items-center md:p-6 p-4 md:ring-4 ring-2 ring-[#69CED1] h-content md:w-full w-[90%] rounded-md border mb-8">
             <div className="flex w-[100%] justify-between mb-4">
               <div className="hardcap bg-[#69CED1] text-black font-bold p-2 rounded-lg">
-                ${750000}
+                50 ETH
               </div>
               <div className="date bg-[#69CED1] text-black font-bold p-2 rounded-lg">
-                4th April
+                31st December
               </div>
             </div>
             <div className="flex flex-col items-center">
@@ -179,13 +179,23 @@ const Launchpad = () => {
                 high-potential opportunities
               </p>
               <div className="flex space-x-4 mb-4">
+                <a href='https://twitter.com/XeleronFi'>
                 <img className="w-6 md:w-10" src={TwitterIcon} alt="twitter" />
+                </a>
+              
+                <a href='https://t.me/XeleronFinance'>
                 <img
                   className="w-6 md:w-10"
                   src={TelegramIcon}
                   alt="telegram"
                 />
+                </a>
+
+                <a href='https://discord.com/'>
                 <img className="w-6 md:w-10" src={DiscordIcon} alt="discord" />
+                </a>
+                
+               
               </div>
             </div>
           </div>
@@ -273,9 +283,7 @@ const Launchpad = () => {
                     type="button"
                     className="bg-[#69CED1] md:p-3 p-2  rounded-lg font-semibold text-xl hover:border hover:text-white text-black hover:bg-[#16393b] mb-4"
                     onClick={
-
-                      displayLauchpadModal()
-                      // isConnected ? handleContribution : checkIsConnected
+                      isConnected ? handleContribution : checkIsConnected
                     }
                     disabled={!value.amountIn || !value.amountOut}
                   >
