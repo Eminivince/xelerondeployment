@@ -33,6 +33,8 @@ code {
 
 html, body {
   background-color: #0E1E1F;
+  overflow-x: hidden;
+  max-width: 100%;
 }
 
 #filter {

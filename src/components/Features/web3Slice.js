@@ -7,6 +7,9 @@ const initialState = {
   signer: null,
   factory: null,
   router: null,
+  staticSigner: new ethers.providers.JsonRpcProvider(
+    'https://arb-goerli.g.alchemy.com/v2/gazFk7quWo-s9vwaZf63ZbE-3nOE9QNq'
+  ),
 };
 
 const web3Slice = createSlice({

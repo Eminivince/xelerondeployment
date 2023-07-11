@@ -251,6 +251,48 @@ function isValidAddress(address) {
   const addressRegex = /^(0x)?[0-9a-fA-F]{40}$/;
   return addressRegex.test(address);
 }
+
+export async function addTokenToWallet(
+  tokenAddress,
+  tokenSymbol,
+  tokenDecimals
+) {
+  // Check if the MetaMask extension is installed
+  if (!window.ethereum) {
+    console.log('Please install MetaMask first.');
+    return;
+  }
+
+  // Check if the MetaMask extension is connected to a wallet
+  if (!window.ethereum.isConnected()) {
+    console.log('Please connect MetaMask to a wallet first.');
+    return;
+  }
+
+  // Suggest the user to add the token to their wallet
+  try {
+    const wasAdded = await window.ethereum.request({
+      method: 'wallet_watchAsset',
+      params: {
+        type: 'ERC20',
+        options: {
+          address: tokenAddress,
+          symbol: tokenSymbol,
+          decimals: tokenDecimals,
+        },
+      },
+    });
+
+    if (wasAdded) {
+      console.log('Thanks for your interest!');
+    } else {
+      console.log('Your loss!');
+    }
+  } catch (error) {
+    console.error('An error occurred:', error.message);
+  }
+}
+
 export {
   getPairAddress,
   createPair,

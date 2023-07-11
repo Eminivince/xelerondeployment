@@ -7,13 +7,14 @@ import { useDispatch, useSelector } from 'react-redux';
 import { showCreateAPair, showRemoveLiquidity } from '../../Features/PoolSlice';
 import { useConnectModal } from '@rainbow-me/rainbowkit';
 import { useAccount } from 'wagmi';
+import Logo from '../../../images/xeleronlogo.png'
 
 function LiquidityMain() {
   const dispatch = useDispatch();
 
   const [pools, setPools] = useState([
-    { name: 'ETH/APY', id: 1, img: diamond, liquidity: false },
-    { name: 'ETH/AAVE', id: 2, img: diamond, liquidity: false },
+    { name: 'ETH/XLR', id: 1, img: diamond, liquidity: false },
+    { name: 'USDT/XLR', id: 2, img: diamond, liquidity: false },
   ]);
 
   function toggleDisplayFullPool(id) {
@@ -78,7 +79,7 @@ function LiquidityMain() {
               <div className="w-full bg-[#152F30] h-[80px] flex items-center justify-between">
                 <div className="flex items-center">
                   <img className="mr-3" src={diamond} alt="diamond" />
-                  <img className="mr-3" src={green} alt="green" />
+                  <img className="mr-3 w-[15%]" src={Logo} alt="green" />
                   <p>{pool.name}</p>
                 </div>
                 <i
@@ -92,22 +93,22 @@ function LiquidityMain() {
               <div className="mt-6 mb-7 text-[#DCDCDC]">
                 <div className="flex items-center justify-between mb-2">
                   <p>Your total pool tokens</p>
-                  <p>0.00092210891</p>
+                  <p>0.000000000</p>
                 </div>
 
                 <div className="flex items-center justify-between mb-2">
                   <p>Pooled ETH</p>
-                  <p>0.000226482 ETH</p>
+                  <p>0.000000000 ETH</p>
                 </div>
 
                 <div className="flex items-center justify-between mb-2">
-                  <p>Pooled AWC</p>
-                  <p>0.00069562691 AWC</p>
+                  <p>Pooled XLR</p>
+                  <p>0.000000000 XLR</p>
                 </div>
 
                 <div className="flex items-center justify-between mb-2">
                   <p>Your pool share</p>
-                  <p>0.14%</p>
+                  <p>0.00%</p>
                 </div>
 
                 <div>
@@ -115,12 +116,12 @@ function LiquidityMain() {
 
                   <div className="flex justify-between">
                     <button
-                      className="bg-[#1B595B] text-[#69CED1] h-[48px] rounded-[100px] w-[48%]"
+                      className="bg-[#1B595B] text-[#69CED1] h-[48px] rounded-[100px] w-[48%] hover:bg-[#174849] duration-300"
                       onClick={() => dispatch(showRemoveLiquidity())}
                     >
                       Remove
                     </button>
-                    <button className="bg-[#1B595B] text-[#69CED1] h-[48px] rounded-[100px] w-[48%]">
+                    <button className="bg-[#1B595B] text-[#69CED1] h-[48px] rounded-[100px] w-[48%] hover:bg-[#174849] duration-300">
                       Add
                     </button>
                   </div>
