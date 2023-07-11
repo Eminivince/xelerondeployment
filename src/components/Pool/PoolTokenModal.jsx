@@ -10,7 +10,6 @@ import {
   removePoolTokenModal,
   selectTokenForFirstInput,
   selectTokenForSecondInput,
-  showPoolImportTokenModal,
 } from '../Features/PoolSlice';
 import { useAccount } from 'wagmi';
 import { ethers } from 'ethers';
@@ -160,10 +159,31 @@ function PoolTokenModal() {
         <div id="hide-scroll" className="mb-3 h-full overflow-y-scroll">
           {tokenList.map((token, index) => (
             <Item
-              {...{ token, index, signer, searchToken, dispatch, selectToken }}
+              {...{
+                token,
+                index,
+                signer,
+                searchToken,
+                dispatch,
+                selectToken,
+                type: 'pool',
+              }}
               key={index}
             />
           ))}
+          {importToken.address && (
+            <Item
+              {...{
+                token: importToken,
+                index: 99999999,
+                signer,
+                searchToken,
+                dispatch,
+                selectToken,
+                type: 'pool',
+              }}
+            />
+          )}
         </div>
       </div>
     </div>

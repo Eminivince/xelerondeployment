@@ -15,6 +15,7 @@ import { erc20ABI } from '../../contracts';
 import { useAccount } from 'wagmi';
 import { isValidAddress } from '../../utils/helpers';
 import { toast } from 'react-toastify';
+import { showPoolImportTokenModal } from '../Features/PoolSlice';
 function TokenModalSwapFrom() {
   const { defaultTokenSwapTo, defaultTokenSwapFrom } = useSelector(
     (state) => state.token
@@ -79,10 +80,6 @@ function TokenModalSwapFrom() {
     dispatch(hideTokenModal());
   }
 
-  function importForSwapFrom(token) {
-    dispatch(importTokenSwap(token));
-  }
-
   return (
     <div className="">
       <div className="bg-[#061111B8] fixed w-full h-fit min-h-[100vh] top-0 left-0 backdrop-blur-[4px] z-50"></div>
@@ -123,7 +120,6 @@ function TokenModalSwapFrom() {
                   searchToken,
                   index,
                   selectToken,
-                  importForSwapFrom,
                 }}
                 key={index}
               />
@@ -137,7 +133,6 @@ function TokenModalSwapFrom() {
                 searchToken,
                 index: tokenList.length + 9999,
                 selectToken,
-                importForSwapFrom,
               }}
             />
           )}
@@ -158,17 +153,17 @@ function TokenModalSwapFrom() {
     </div>
   );
 }
-export const Item = ({
-  token,
-  signer,
-  searchToken,
-  selectToken,
-  importForSwapFrom,
-}) => {
+export const Item = ({ token, signer, searchToken, selectToken, type }) => {
   const [balance, setBalance] = useState(0.0);
   const { address } = useAccount();
   const [decimals, setDecimals] = useState(18);
 
+  const { Token_List } = useSelector((store) => store.token);
+  const dispatch = useDispatch();
+  function importForSwapFrom(token) {
+    if (type === 'pool') dispatch(showPoolImportTokenModal(token));
+    else dispatch(importTokenSwap(token));
+  }
   useEffect(() => {
     (async function () {
       try {
@@ -209,7 +204,7 @@ export const Item = ({
         <p>{token.name}</p>
       </div>
       <div className="ml-auto">
-        {searchToken.filteredToken.length > 0 && balance === 0.0 ? (
+        {!Token_List.find((t) => t.address === token.address) ? (
           <div
             className="bg-[#69CED1] w-[75px] h-[32px] rounded-[100px] hover:opacity-70"
             onClick={() => importForSwapFrom(token)}

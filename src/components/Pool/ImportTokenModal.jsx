@@ -5,17 +5,25 @@ import Caution from '../../images/caution.png';
 import {
   hidePoolImportTokenModal,
   removePoolTokenModal,
+  selectTokenForFirstInput,
+  selectTokenForSecondInput,
   validateFirstInputImport,
 } from '../Features/PoolSlice';
+import { addDoc, collection, getDocs } from 'firebase/firestore';
+import { db } from '../../firebase';
+import { toast } from 'react-toastify';
+import { setAllToken } from '../Features/TokenSlice';
 
 function ImportTokenModal() {
-  const { firstInputTokenImport } = useSelector((store) => store.poolFunc);
+  const { firstInputTokenImport, PoolTokenType } = useSelector(
+    (store) => store.poolFunc
+  );
   const dispatch = useDispatch();
 
   const [proceed, setProceed] = useState(false);
 
-  function completeTokenImport() {
-    dispatch(validateFirstInputImport());
+  async function completeTokenImport() {
+    await addToFireStore();
     dispatch(removePoolTokenModal());
     dispatch(hidePoolImportTokenModal());
   }
@@ -25,6 +33,27 @@ function ImportTokenModal() {
     dispatch(hidePoolImportTokenModal());
   }
 
+  async function addToFireStore() {
+    try {
+      console.log('adding to firestore');
+
+      await addDoc(collection(db, 'tokens'), firstInputTokenImport);
+      if (PoolTokenType === 'first')
+        dispatch(selectTokenForFirstInput(firstInputTokenImport));
+      else if (PoolTokenType === 'second')
+        dispatch(selectTokenForSecondInput(firstInputTokenImport));
+      dispatch(removePoolTokenModal());
+      toast.success('Token added successfully');
+
+      const querySnapshot = await getDocs(collection(db, 'tokens'));
+      const temp = await Promise.all(
+        querySnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }))
+      );
+      dispatch(setAllToken(temp));
+    } catch (err) {
+      console.log(err);
+    }
+  }
   function updateApproval(e) {
     setProceed(e.target.checked);
   }
@@ -59,7 +88,7 @@ function ImportTokenModal() {
 
         <div className="h-full mt-8">
           <img src={Caution} alt={Caution} className="m-auto" />
-          <h5 className="mt-5 text-center mb-3">Trade at your own risk</h5>
+          <h5 className="mt-5 text-center mb-3">Trade at your own risk </h5>
           <div className="text-[#DCDCDC] px-3 mb-4">
             <p className="text-center">
               Anyone can create a token, including creating fake versions of

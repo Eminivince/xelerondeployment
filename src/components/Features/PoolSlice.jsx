@@ -71,9 +71,6 @@ const PoolSlice = createSlice({
     hidePoolImportTokenModal: (state) => {
       state.displayImportTokenFirstInput = false;
     },
-    validateFirstInputImport: (state) => {
-      state.firstInputToken = state.firstInputTokenImport;
-    },
   },
 });
 
@@ -93,7 +90,7 @@ export const {
   selectTokenForSecondInput,
   showPoolImportTokenModal,
   hidePoolImportTokenModal,
-  validateFirstInputImport,
+
   setPoolTokenType,
 } = PoolSlice.actions;
 
