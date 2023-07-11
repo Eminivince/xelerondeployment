@@ -26,7 +26,7 @@ function Footer() {
         <div className='flex w-full md:w-8/12 justify-between flex-wrap'>
             <div className='w-1/2 md:w-fit mt-7 md:mt-0'>
                 <h5 className='text-[#69CED1] mb-4 text-[20px]' id='network'>Network</h5>
-                <a href='https://ethereum.org/en/'><p className='mb-2'>Ethereum</p></a>
+                <a href='https://ethereum.org/en/'><p className='mb-2'>Arbitrum</p></a>
                 <a href='https://zksync.io/'><p className='mb-2'>zKsync Era</p></a>
                 
             </div>
