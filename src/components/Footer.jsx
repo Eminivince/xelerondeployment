@@ -14,10 +14,10 @@ function Footer() {
             <p className='md:hidden my-4 text-[#808080] text-[12px]'>Xeleron aims to cater to the evolving needs of her users with her innovative infrastructures</p>
             <div>
                 <div className='flex mb-8'>
-                    <a href='discord.com' className='mr-2'><img src={icon1} alt="" /></a>
+                    <a href='https://discord.com/' className='mr-2'><img src={icon1} alt="" /></a>
                     <a href='https://t.me/XeleronFi' className='mr-2'><img src={telegram} alt="" /></a>
                     <a href='https://twitter.com/XeleronFi' className='mr-2'><img src={twitter} alt="" /></a>
-                    <a href='xeleronfi.medium.com' className='mr-2'><img src={bubble} alt="" /></a>
+                    <a href='https://xeleronfi.medium.com/' className='mr-2'><img src={bubble} alt="" /></a>
                 </div>
                 <p className='text-[#808080] text-[12px] hidden md:block'>2023 Xeleron. All rights reserved</p>
             </div>
