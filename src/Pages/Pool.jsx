@@ -59,11 +59,11 @@ function Pool() {
     if (!isConnected) {
       return;
     }
-    await createPair({
-      factoryContract: factory,
-      TokenA,
-      TokenB,
-    });
+    // await createPair({
+    //   factoryContract: factory,
+    //   TokenA,
+    //   TokenB,
+    // });
     const err = await approveTokens({
       signer,
       amountA: TokenA.value,
@@ -133,14 +133,14 @@ function Pool() {
     <main className="text-white relative min-h-[100vh]">
       <AltNav current={current} />
       <div className="pt-[100px]">
-      {displayPoolTokenModal && <PoolTokenModal />}
-      {displayImportTokenFirstInput && <ImportTokenModal />}
-      {transactionSettingsModal && <SettingsModal />}
-      {!displayCreateAPair ? (
-        <Liquidity />
-      ) : (
-        <CreateAPair addLiquidity={addLiquidity} />
-      )}
+        {displayPoolTokenModal && <PoolTokenModal />}
+        {displayImportTokenFirstInput && <ImportTokenModal />}
+        {transactionSettingsModal && <SettingsModal />}
+        {!displayCreateAPair ? (
+          <Liquidity />
+        ) : (
+          <CreateAPair addLiquidity={addLiquidity} />
+        )}
       </div>
     </main>
   );

@@ -26,7 +26,7 @@ function ConfirmSupplyModal({
             <AiOutlineClose />
           </div>
         </header>
-        <h1 className="text-[34px] mb-5">0.000092210891</h1>
+
         <section className="text-[#DCDCDC] mb-7">
           <p className="text-white mb-4">
             {firstInputToken.symbol}/{secondInputToken.symbol} Pool Tokens
@@ -41,14 +41,14 @@ function ConfirmSupplyModal({
             <p>{firstInputToken.symbol} Deposited</p>
             <div>
               <p></p>
-              <p>{inputs.input1}</p>
+              <p>{inputs.token1}</p>
             </div>
           </div>
           <div className="flex justify-between mb-4">
             <p>{secondInputToken.symbol} Deposited</p>
             <div>
               <p></p>
-              <p>{inputs.input2}</p>
+              <p>{inputs.token2}</p>
             </div>
           </div>
           <div className="flex justify-between mb-4">
@@ -81,12 +81,12 @@ function ConfirmSupplyModal({
             addLiquidity(
               {
                 ...firstInputToken,
-                value: inputs.input1,
+                value: inputs.token1,
               },
               {
                 ...secondInputToken,
 
-                value: inputs.input2,
+                value: inputs.token2,
               }
             )
           }

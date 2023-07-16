@@ -100,6 +100,7 @@ const approveTokens = async ({ signer, TokenA, TokenB, amountA, amountB }) => {
       erc20ABI,
       signer
     );
+    console.log({ TokenA, TokenB, amountA, amountB });
     const amountADesired = ethers.utils.parseUnits(
       `${Number(amountA).toFixed(TokenA.decimals)}`,
       TokenA.decimals
