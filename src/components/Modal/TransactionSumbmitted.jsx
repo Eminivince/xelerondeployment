@@ -8,7 +8,12 @@ import {
   hideTransactionSubmitted,
 } from '../Features/ModalSlice';
 
-function TransactionSumbmitted({ swapInputs, returnToSwap, clearSwapInput }) {
+function TransactionSumbmitted({
+  swapInputs,
+  returnToSwap,
+  clearSwapInput,
+  txHash,
+}) {
   const dispatch = useDispatch();
   function closeModal() {
     dispatch(hideTransactionSubmitted());
@@ -39,9 +44,15 @@ function TransactionSumbmitted({ swapInputs, returnToSwap, clearSwapInput }) {
           Swapping {swapInputs.from.value + ' '} {swapInputs.from.symbol + ' '}
           for {swapInputs.to.value + ' '} {swapInputs.to.symbol + ' '}
         </p>
-        <button className="bg-[#1B595B] text-[#69CED1] w-[95%] block mx-auto h-[48px] rounded-[100px] mt-12">
-          View on Etherscon
-        </button>
+        <a
+          href={`https://goerli.arbiscan.io/tx/${txHash}`}
+          target="_blank"
+          rel="noreferrer"
+        >
+          <button className="bg-[#1B595B] text-[#69CED1] w-[95%] block mx-auto h-[48px] rounded-[100px] mt-12">
+            View on Etherscon
+          </button>
+        </a>
       </div>
     </div>
   );
