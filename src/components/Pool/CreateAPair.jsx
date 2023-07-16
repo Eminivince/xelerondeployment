@@ -16,6 +16,7 @@ import { getEstimatedTokensOut, getPairAddress } from '../../utils/helpers';
 import { erc20ABI, pairABI } from '../../contracts';
 import { ethers } from 'ethers';
 import { formatNumber } from '../../utils/utils';
+import { toast } from 'react-toastify';
 
 function CreateAPair({ addLiquidity }) {
   const { displayConfirmSupplyModal, firstInputToken, secondInputToken } =
@@ -36,6 +37,9 @@ function CreateAPair({ addLiquidity }) {
 
   async function updateInputs(e) {
     const { name, value } = e.target;
+    if (!firstInputToken.address || !secondInputToken.address) {
+      return toast.error('Select tokens');
+    }
     setInputs((prevValue) => {
       return {
         ...prevValue,
