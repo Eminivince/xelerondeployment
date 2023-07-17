@@ -59,11 +59,7 @@ function Pool() {
     if (!isConnected) {
       return;
     }
-    // await createPair({
-    //   factoryContract: factory,
-    //   TokenA,
-    //   TokenB,
-    // });
+    
     const err = await approveTokens({
       signer,
       amountA: TokenA.value,
@@ -74,7 +70,11 @@ function Pool() {
     if (err) {
       return toast.error(err.message);
     }
-
+    await createPair({
+      factoryContract: factory,
+      TokenA,
+      TokenB,
+    });
     const amountADesired = ethers.utils.parseUnits(
       Number(TokenA.value).toFixed(TokenA.decimals),
       TokenA.decimals
